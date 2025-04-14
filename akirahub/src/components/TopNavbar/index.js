@@ -40,7 +40,7 @@ const TopNavbar = () => {
           </div>
           <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
             <Image
-              src="/api/placeholder/32/32"
+              src="/profileimage.svg"
               alt="User profile"
               width={32}
               height={32}
