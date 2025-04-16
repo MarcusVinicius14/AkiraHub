@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const NewsCard = ({ news }) => {
   return (
-    <div className="bg-white rounded-md shadow-sm overflow-hidden">
+    <div className="bg-white rounded-md shadow-sm overflow-hidden hover:bg-gray-100 active:bg-gray-200 cursor-pointer">
       <div className="w-full h-40 relative">
         <Image
           src={news.image}

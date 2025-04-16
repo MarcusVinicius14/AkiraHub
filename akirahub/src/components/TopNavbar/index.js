@@ -4,20 +4,22 @@ import Image from "next/image";
 const TopNavbar = () => {
   return (
     <nav className="bg-white py-3 px-6 flex items-center justify-between  shadow-sm">
-      <div className="flex items-center">
+      <div className="flex items-center hover:bg-gray-100 active:bg-gray-200 cursor-pointer rounded-sm pl-2 pr-2">
         <h1 className="font-bold text-xl mr-2">ハブ</h1>
         <span className="font-medium">Akira Hub</span>
       </div>
 
       <div className="flex space-x-4">
-        <button className="bg-gray-100 px-8 py-2 rounded-md font-medium">
-          Anime
+        <button className="hover:bg-gray-100 active:bg-gray-200 cursor-pointer px-8 py-2 rounded-md font-medium">
+          Animes
         </button>
-        <button className="px-8 py-2 rounded-md font-medium">Manga</button>
+        <button className="px-8 py-2 rounded-md font-medium hover:bg-gray-100 active:bg-gray-200 cursor-pointer">
+          Mangas
+        </button>
       </div>
 
       <div className="flex items-center">
-        <button className="mr-4">
+        <button className="mr-4 hover:bg-gray-100 active:bg-gray-200 cursor-pointer rounded-sm">
           <svg
             className="w-5 h-5"
             fill="none"
@@ -33,12 +35,8 @@ const TopNavbar = () => {
             ></path>
           </svg>
         </button>
-        <div className="flex items-center">
-          <div className="mr-2 text-right">
-            <div className="text-sm font-medium">Marcus Adm</div>
-            <div className="text-xs text-gray-500">Português - BR</div>
-          </div>
-          <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
+        <div className="flex items-center hover:bg-gray-100 active:bg-gray-200 cursor-pointer rounded-md">
+          <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden ">
             <Image
               src="/profileimage.svg"
               alt="User profile"
