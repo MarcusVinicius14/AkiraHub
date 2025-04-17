@@ -5,9 +5,9 @@ import Image from "next/image";
 const MangaCard = ({ manga }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const imageContainerClasses = "w-26 h-32 relative flex-shrink-0 mr-4";
-  const infoPadding = "p-4";
-  const buttonPaddingY = "py-3";
+  const imageContainerClasses = "w-20 h-28 relative flex-shrink-0 mr-4";
+  const infoPadding = "p-3";
+  const buttonPaddingY = "py-1";
   const titleClass = "font-medium text-base";
   const subtitleClass = "text-sm text-gray-600";
 
@@ -23,7 +23,7 @@ const MangaCard = ({ manga }) => {
   const score = manga.score;
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden flex hover:bg-gray-100 active:bg-gray-200 cursor-pointer justify-between items-center">
+    <div className=" bg-white rounded-lg shadow-md overflow-hidden flex hover:bg-gray-100 active:bg-gray-200 cursor-pointer justify-between items-center">
       {/* Esquerda: imagem + infos */}
       <div className={`flex items-center ${infoPadding}`}>
         {imageUrl && (
@@ -32,7 +32,7 @@ const MangaCard = ({ manga }) => {
               src={imageUrl}
               alt={title}
               fill
-              className="object-cover rounded"
+              className="object-cover rounded "
             />
           </div>
         )}
@@ -54,9 +54,9 @@ const MangaCard = ({ manga }) => {
       </div>
 
       {/* direita: comentar + favoritar */}
-      <div className="flex flex-col justify-center border-l border-gray-200 pr-6 pl-6">
+      <div className="flex-col justify-center pr-6 pl-6 border-l-2 border-gray-200  ">
         <button
-          className={`flex-1 ${buttonPaddingY} text-sm font-medium text-gray-600 hover:bg-gray-50 flex items-center justify-center rounded-md p-2 transition`}
+          className={`flex items-center text-xs font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-300 active:bg-gray-400 cursor-pointer rounded-md p-2 transition`}
           onClick={() => alert("Abrir comentários para: " + title)}
         >
           <svg
@@ -76,10 +76,10 @@ const MangaCard = ({ manga }) => {
         </button>
         <div className="w-px bg-gray-200 my-2" />
         <button
-          className={`flex-1 ${buttonPaddingY} text-sm font-medium flex items-center justify-center rounded-md p-2 transition ${
+          className={`flex items-center text-xs font-medium rounded-md p-2 transition ${
             isFavorite
-              ? "text-red-500 hover:bg-red-100"
-              : "text-gray-600 hover:bg-gray-50"
+              ? "text-red-500 hover:text-red-700 hover:bg-red-100"
+              : "text-gray-600 hover:bg-gray-300 active:bg-gray-400 cursor-pointer"
           }`}
           onClick={() => setIsFavorite(!isFavorite)}
         >
