@@ -10,7 +10,6 @@ export default function AnimeList() {
   useEffect(() => {
     async function fetchAnimes() {
       try {
-        // Buscamos mais itens para filtrar e depois pegamos 5 itens válidos.
         const res = await fetch("https://api.jikan.moe/v4/top/anime?limit=15");
         if (!res.ok) {
           throw new Error(`Erro ao buscar animes. Status: ${res.status}`);
@@ -18,9 +17,8 @@ export default function AnimeList() {
         const json = await res.json();
         // Filtra para remover os animes do tipo "Movie" ou "TV Special"
         const filtered = json.data.filter(
-          (anime) => anime.type !== "Movie" && anime.type !== "TV Special"
+          (anime) => anime.type !== "Default" && anime.type !== "TV Special"
         );
-        // Pega os 5 primeiros itens do json
         const data = filtered.slice(0, 5);
         setAnimes(data);
       } catch (err) {

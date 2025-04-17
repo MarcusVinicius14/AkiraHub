@@ -28,7 +28,7 @@ export default function AnimeFiltersRow() {
     fetchGenres();
   }, []);
 
-  // Estado para status (Estática)
+  // Estado para status "Estática"
   const statusOptions = ["Lançando", "Hiato", "Finalizado"];
 
   // Estado para temporadas
