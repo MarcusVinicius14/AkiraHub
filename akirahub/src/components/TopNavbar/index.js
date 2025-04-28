@@ -1,8 +1,20 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import SideBar from "../SideBar";
 
 const TopNavbar = () => {
+  const [sideBarOpen, setSideBarOpen] = useState(false);
+
+  const toggleSideBar = () => {
+    setSideBarOpen(!sideBarOpen);
+  };
+
+  const closeSideBar = () => {
+    setSideBarOpen(false);
+  };
+
   return (
     <nav className="bg-white py-3 px-6 flex items-center justify-between  shadow-sm">
       <Link
@@ -45,7 +57,10 @@ const TopNavbar = () => {
             ></path>
           </svg>
         </button>
-        <div className="flex items-center hover:bg-gray-100 active:bg-gray-200 cursor-pointer rounded-md">
+        <div
+          onClick={toggleSideBar}
+          className="flex items-center hover:bg-gray-100 active:bg-gray-200 cursor-pointer rounded-md"
+        >
           <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden ">
             <Image
               src="/profileimage.svg"
@@ -71,6 +86,7 @@ const TopNavbar = () => {
           </svg>
         </div>
       </div>
+      <SideBar isOpen={sideBarOpen} onClose={closeSideBar} />
     </nav>
   );
 };
