@@ -1,24 +1,33 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { supabase } from "../../../../../lib/supabaseClient";
 
 export default function AnimeFiltersRow() {
-  // Estado para controlar os dropdown
   const [openGenre, setOpenGenre] = useState(false);
   const [openStatus, setOpenStatus] = useState(false);
   const [openSeason, setOpenSeason] = useState(false);
 
-  // Estado para gêneros
   const [genres, setGenres] = useState([]);
   const [loadingGenres, setLoadingGenres] = useState(true);
   const [errorGenres, setErrorGenres] = useState(null);
 
+  const statusOptions = ["Lançando", "Hiato", "Finalizado"];
+
+  const [seasonsData, setSeasonsData] = useState([]);
+  const [loadingSeasons, setLoadingSeasons] = useState(true);
+  const [errorSeasons, setErrorSeasons] = useState(null);
+  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedSeason, setSelectedSeason] = useState("");
+
   useEffect(() => {
     async function fetchGenres() {
       try {
-        const res = await fetch("https://api.jikan.moe/v4/genres/anime");
-        if (!res.ok) throw new Error(`Erro: ${res.status}`);
-        const data = await res.json();
-        setGenres(data.data);
+        const { data, error } = await supabase
+          .from("anime_genres")
+          .select("*")
+          .order("name", { ascending: true });
+        if (error) throw error;
+        setGenres(data);
       } catch (err) {
         setErrorGenres(err.message);
       } finally {
@@ -28,24 +37,15 @@ export default function AnimeFiltersRow() {
     fetchGenres();
   }, []);
 
-  // Estado para status "Estática"
-  const statusOptions = ["Lançando", "Hiato", "Finalizado"];
-
-  // Estado para temporadas
-  const [seasonsData, setSeasonsData] = useState([]);
-  const [loadingSeasons, setLoadingSeasons] = useState(true);
-  const [errorSeasons, setErrorSeasons] = useState(null);
-  const [selectedYear, setSelectedYear] = useState("");
-  const [selectedSeason, setSelectedSeason] = useState("");
-
   useEffect(() => {
     async function fetchSeasons() {
       try {
-        const res = await fetch("https://api.jikan.moe/v4/seasons");
-        if (!res.ok) throw new Error(`Erro: ${res.status}`);
-        const data = await res.json();
-        // Filtrei pra considerar apenas os anos >= 1990
-        const filtered = data.data.filter((item) => item.year >= 1990);
+        const { data, error } = await supabase
+          .from("seasons")
+          .select("year, seasons")
+          .order("year", { ascending: false });
+        if (error) throw error;
+        const filtered = data.filter((item) => item.year >= 1990);
         setSeasonsData(filtered);
       } catch (err) {
         setErrorSeasons(err.message);
@@ -59,7 +59,6 @@ export default function AnimeFiltersRow() {
   return (
     <div className="mb-4">
       <div className="flex flex-wrap gap-4">
-        {/* Botão Gêneros */}
         <div>
           <button
             onClick={() => setOpenGenre(!openGenre)}
@@ -72,7 +71,7 @@ export default function AnimeFiltersRow() {
               {loadingGenres ? (
                 <div>Carregando gêneros...</div>
               ) : errorGenres ? (
-                <div>Erro: {errorGenres}</div>
+                <div className="text-red-500">Erro: {errorGenres}</div>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {genres.map((genre) => (
@@ -89,7 +88,6 @@ export default function AnimeFiltersRow() {
           )}
         </div>
 
-        {/* Botão Status */}
         <div>
           <button
             onClick={() => setOpenStatus(!openStatus)}
@@ -99,11 +97,10 @@ export default function AnimeFiltersRow() {
           </button>
           {openStatus && (
             <div className="mt-2 p-2 bg-white rounded-md shadow-md">
-              {/* Alterado para exibir os status em coluna */}
               <div className="flex flex-col gap-2">
-                {statusOptions.map((status, index) => (
+                {statusOptions.map((status, idx) => (
                   <button
-                    key={index}
+                    key={idx}
                     className="px-3 py-1 border rounded-full text-sm hover:bg-green-500 hover:text-white transition"
                   >
                     {status}
@@ -114,7 +111,6 @@ export default function AnimeFiltersRow() {
           )}
         </div>
 
-        {/* Botão Temporadas */}
         <div>
           <button
             onClick={() => setOpenSeason(!openSeason)}
@@ -124,7 +120,6 @@ export default function AnimeFiltersRow() {
           </button>
           {openSeason && (
             <div className="mt-2 p-2 bg-white rounded-md shadow-md">
-              {/* Caixa de seleção para escolher o ano */}
               <div className="mb-3">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Ano
@@ -145,11 +140,11 @@ export default function AnimeFiltersRow() {
                   ))}
                 </select>
               </div>
-              {/* Apenas se um ano for selecionado, exibe a temporada */}
+
               {selectedYear && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Temporadas
+                    Temporada
                   </label>
                   <select
                     value={selectedSeason}
@@ -157,14 +152,13 @@ export default function AnimeFiltersRow() {
                     className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="">Selecione uma temporada</option>
-                    {selectedYear &&
-                      seasonsData
-                        .find((item) => item.year === Number(selectedYear))
-                        ?.seasons.map((season) => (
-                          <option key={season} value={season}>
-                            {season.charAt(0).toUpperCase() + season.slice(1)}
-                          </option>
-                        ))}
+                    {seasonsData
+                      .find((item) => item.year === Number(selectedYear))
+                      ?.seasons.map((season) => (
+                        <option key={season} value={season}>
+                          {season.charAt(0).toUpperCase() + season.slice(1)}
+                        </option>
+                      ))}
                   </select>
                 </div>
               )}

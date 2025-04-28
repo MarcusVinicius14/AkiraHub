@@ -24,7 +24,9 @@ export default function MangaPage() {
 
           <div className="space-y-4 overflow-auto">
             <section>
-              <h2 className="text-xl font-bold">Recomendação com base nesse mangá</h2>
+              <h2 className="text-xl font-bold">
+                Recomendação com base nesse mangá
+              </h2>
               <MangaRecommendations count={4} />
             </section>
           </div>

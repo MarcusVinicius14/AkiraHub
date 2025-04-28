@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import AnimeListCard from "../AnimeListCard";
+import { supabase } from "../../../../../lib/supabaseClient";
 
 export default function AnimeList() {
   const [animes, setAnimes] = useState([]);
@@ -10,23 +11,32 @@ export default function AnimeList() {
   useEffect(() => {
     async function fetchAnimes() {
       try {
-        const res = await fetch("https://api.jikan.moe/v4/top/anime?limit=15");
-        if (!res.ok) {
-          throw new Error(`Erro ao buscar animes. Status: ${res.status}`);
-        }
-        const json = await res.json();
-        // Filtra para remover os animes do tipo "Movie" ou "TV Special"
-        const filtered = json.data.filter(
-          (anime) => anime.type !== "Default" && anime.type !== "TV Special"
-        );
-        const data = filtered.slice(0, 5);
-        setAnimes(data);
+        const { data, error } = await supabase
+          .from("animes")
+          .select("*")
+          .order("score", { descending: true })
+          .limit(5);
+
+        if (error) throw error;
+
+        const formatted = data.map((a) => ({
+          mal_id: a.mal_id,
+          title: a.title,
+          title_english: a.title,
+          images: { jpg: { image_url: a.image_url } },
+          episodes: a.episodes,
+          score: a.score,
+          year: a.year,
+        }));
+
+        setAnimes(formatted);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
+
     fetchAnimes();
   }, []);
 

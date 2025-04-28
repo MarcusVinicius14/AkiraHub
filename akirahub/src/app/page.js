@@ -23,15 +23,11 @@ export default function Home() {
             <h2 className="text-xl font-bold mb-4">Últimas notícias</h2>
             <NewsList />
 
-            <h2 className="text-xl font-bold mb-4 mt-8">
-              Últimos animes adicionados
-            </h2>
+            <h2 className="text-xl font-bold mb-4 mt-8">Últimos animes adicionados</h2>
             <LatestAdditions type="anime" />
 
-            <h2 className="text-xl font-bold mb-4 mt-8">
-              Últimos mangas adicionados
-            </h2>
-            <LatestAdditions type="anime" />
+            <h2 className="text-xl font-bold mb-4 mt-8">Últimos mangas adicionados</h2>
+            <LatestAdditions type="manga" />
           </div>
 
           <div className="lg:col-span-1">

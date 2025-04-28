@@ -1,30 +1,38 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import MangaCard from "../MangaCard";
+import { supabase } from "../../../lib/supabaseClient";
 
-const MangaList = () => {
+export default function MangaList() {
   const [mangas, setMangas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchTopMangas() {
+    async function fetchMangas() {
       try {
-        const res = await fetch("https://api.jikan.moe/v4/top/manga");
-        if (!res.ok) {
-          throw new Error(`Erro ao buscar os top mangas. Status: ${res.status}`);
-        }
-        const json = await res.json();
-        const topMangas = json.data.slice(0, 6);
-        setMangas(topMangas);
+        const { data, error } = await supabase
+          .from("mangas")
+          .select("*")
+          .order("mal_id", { ascending: true })
+          .limit(6);
+        if (error) throw error;
+
+        const formatted = data.map((m) => ({
+          ...m,
+          title_english: m.title,
+          images: { jpg: { image_url: m.image_url } },
+        }));
+
+        setMangas(formatted);
       } catch (err) {
-        console.error("Erro:", err);
+        console.error("MangaList:", err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-    fetchTopMangas();
+    fetchMangas();
   }, []);
 
   if (loading) return <div>Carregando...</div>;
@@ -37,6 +45,4 @@ const MangaList = () => {
       ))}
     </div>
   );
-};
-
-export default MangaList;
+}

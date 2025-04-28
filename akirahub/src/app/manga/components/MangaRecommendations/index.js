@@ -1,9 +1,7 @@
-// src/app/manga/components/MangaRecommendations/index.js
 "use client";
 import React, { useState, useEffect } from "react";
 import MangaCard from "../../../../components/MangaCard";
-
-const pause = (ms) => new Promise((res) => setTimeout(res, ms));
+import { supabase } from "../../../../../lib/supabaseClient";
 
 export default function MangaRecommendations({ count = 3 }) {
   const [base, setBase] = useState(null);
@@ -11,37 +9,43 @@ export default function MangaRecommendations({ count = 3 }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  function shuffle(array) {
+    const a = array.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
   useEffect(() => {
-    async function fetchAll() {
+    async function fetchMangaAndRecs() {
       try {
-        // 1. Escolhe um ID aleatório entre 1 e 100
-        const id = Math.floor(Math.random() * 100) + 1;
-
-        // 2. Busca o mangá base
-        let res = await fetch(`https://api.jikan.moe/v4/manga/${id}`);
-        if (res.status === 429) {
-          await pause(2000);
-          res = await fetch(`https://api.jikan.moe/v4/manga/${id}`);
+        const { data, error } = await supabase.from("mangas").select("*");
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          throw new Error("Nenhum mangá encontrado");
         }
-        if (!res.ok) throw new Error(`Erro ao buscar mangá base: ${res.status}`);
-        const jsonBase = await res.json();
-        const baseManga = jsonBase.data;
 
-        // 3. Busca as recomendações desse mesmo ID
-        res = await fetch(`https://api.jikan.moe/v4/manga/${id}/recommendations`);
-        if (res.status === 429) {
-          await pause(2000);
-          res = await fetch(`https://api.jikan.moe/v4/manga/${id}/recommendations`);
-        }
-        if (!res.ok) throw new Error(`Erro nas recomendações: ${res.status}`);
-        const jsonRec = await res.json();
-        const recEntries = Array.isArray(jsonRec.data) ? jsonRec.data : [];
+        const all = data;
+        const idx = Math.floor(Math.random() * all.length);
+        const baseManga = all[idx];
+        setBase({
+          ...baseManga,
+          title_english: baseManga.title,
+          images: { jpg: { image_url: baseManga.image_url } },
+        });
 
-        // 4. Extrai apenas os `entry` dos primeiros `count`
-        const list = recEntries.slice(0, count).map((r) => r.entry);
-
-        setBase(baseManga);
-        setRecs(list);
+        const others = all.filter((m) => m.mal_id !== baseManga.mal_id);
+        const shuffled = shuffle(others);
+        const selected = shuffled.slice(0, count);
+        setRecs(
+          selected.map((m) => ({
+            ...m,
+            title_english: m.title,
+            images: { jpg: { image_url: m.image_url } },
+          }))
+        );
       } catch (err) {
         console.error("MangaRecommendations:", err);
         setError(err.message);
@@ -49,35 +53,27 @@ export default function MangaRecommendations({ count = 3 }) {
         setLoading(false);
       }
     }
-    fetchAll();
+    fetchMangaAndRecs();
   }, [count]);
 
   if (loading) return <div>Carregando recomendações…</div>;
-  if (error)   return <div>Erro: {error}</div>;
+  if (error) return <div>Erro: {error}</div>;
 
   return (
     <div className="space-y-6 mt-4">
-      {/*Mangá Base*/}
+      {/* Manga base */}
       {base && (
-        <div>
-          <h3 className="text-lg font-semibold mb-2">
-            Mangá base para recomendações
-          </h3>
+        <>
           <MangaCard manga={base} />
-        </div>
+          <h3 className="text-lg font-semibold mt-4 mb-2">
+            Recomendações com base no mangá acima
+          </h3>
+        </>
       )}
 
-      {/*Título das Recomendações, da pra tirar isso dps se quiser*/}
-      <div>
-        <h3 className="text-lg font-semibold mb-2">
-          Recomendações com base no mangá acima
-        </h3>
-      </div>
-
-      {/*Cartões de recomendação*/}
       <div className="space-y-4">
-        {recs.map((m) => (
-          <MangaCard key={m.mal_id} manga={m} />
+        {recs.map((manga) => (
+          <MangaCard key={manga.mal_id} manga={manga} />
         ))}
       </div>
     </div>

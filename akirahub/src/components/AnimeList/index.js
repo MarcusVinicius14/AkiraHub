@@ -1,40 +1,58 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import AnimeCard from "../AnimeCard";
+import { supabase } from "../../../lib/supabaseClient";
 
-const AnimeList = () => {
-  const [animes, setAnimes] = useState([]);
+export default function AnimeList() {
+  const [animes, setAnimes]   = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError]     = useState(null);
 
   useEffect(() => {
-    async function fetchTopAnimes() {
+    async function fetchAnimes() {
       try {
-        const res = await fetch("https://api.jikan.moe/v4/top/anime");
-        if (!res.ok) {
-          throw new Error(`Erro ao buscar os top animes. Status: ${res.status}`);
+        const { data, error } = await supabase
+          .from("top_anime")
+          .select("*")
+          .order("score", { descending: true });
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          setAnimes([]);
+          return;
         }
-        const json = await res.json();
-        // Filtra removendo animes do tipo "TV Special" e "Movie" e pega os 6 primeiros
-        const topAnimes = json.data
-          .filter(
-            (anime) =>
-              anime.type !== "TV Special" && anime.type !== "Movie"
-          )
-          .slice(0, 6);
-        setAnimes(topAnimes);
+
+        const sorted = data.slice().sort((a, b) => {
+          const sa = parseFloat(a.score);
+          const sb = parseFloat(b.score);
+          return sb - sa; // maior score primeiro
+        });
+
+        const formatted = sorted.slice(0, 6).map((a) => ({
+          mal_id: a.mal_id,
+          title: a.title,
+          title_english: a.title_english || a.title,
+          images: { jpg: { image_url: a.image_url } },
+          episodes: a.episodes,
+          score: a.score,
+          year: a.year,
+          type: a.type,
+        }));
+
+        setAnimes(formatted);
       } catch (err) {
-        console.error("Erro:", err);
+        console.error("AnimeList:", err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-    fetchTopAnimes();
+    fetchAnimes();
   }, []);
 
-  if (loading) return <div>Carregando...</div>;
-  if (error) return <div>Erro: {error}</div>;
+  if (loading) return <div>Carregando animes...</div>;
+  if (error)   return <div className="text-red-500">Erro: {error}</div>;
+  if (animes.length === 0) return <div>Nenhum anime encontrado em <code>top_anime</code>.</div>;
 
   return (
     <div className="space-y-4">
@@ -43,6 +61,4 @@ const AnimeList = () => {
       ))}
     </div>
   );
-};
-
-export default AnimeList;
+}
