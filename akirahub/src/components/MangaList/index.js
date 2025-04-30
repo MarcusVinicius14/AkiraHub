@@ -20,6 +20,7 @@ export default function MangaList() {
 
         const formatted = data.map((m) => ({
           ...m,
+          id: m.mal_id,
           title_english: m.title,
           images: { jpg: { image_url: m.image_url } },
         }));

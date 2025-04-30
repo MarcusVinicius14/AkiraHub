@@ -33,7 +33,7 @@ export default function SideBar({ isOpen, onClose }) {
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 rounded-full overflow-hidden">
                 <Image
-                  src="/profileimage.svg" // Substitua pela imagem dinâmica do usuário
+                  src="/profileimage.svg"
                   alt="Profile"
                   width={48}
                   height={48}
