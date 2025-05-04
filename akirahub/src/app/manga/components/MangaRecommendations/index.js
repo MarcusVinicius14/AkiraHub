@@ -32,6 +32,7 @@ export default function MangaRecommendations({ count = 3 }) {
         const baseManga = all[idx];
         setBase({
           ...baseManga,
+          id: baseManga.mal_id,
           title_english: baseManga.title,
           images: { jpg: { image_url: baseManga.image_url } },
         });
@@ -42,6 +43,7 @@ export default function MangaRecommendations({ count = 3 }) {
         setRecs(
           selected.map((m) => ({
             ...m,
+            id: m.mal_id,
             title_english: m.title,
             images: { jpg: { image_url: m.image_url } },
           }))

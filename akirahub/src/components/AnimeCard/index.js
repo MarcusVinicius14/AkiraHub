@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function AnimeCard({ anime }) {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -11,56 +12,58 @@ export default function AnimeCard({ anime }) {
   const contentPadding = "p-3";
   const maxTitleLen = 30; // Caracteres antes de truncar o título
 
-  const rawTitle = anime.title_english || anime.title;
+  const id = anime?.mal_id;
+  const rawTitle = anime?.title_english || anime?.title;
   const title =
     rawTitle.length > maxTitleLen
       ? rawTitle.slice(0, maxTitleLen) + "..."
       : rawTitle;
 
   const episodes =
-    anime.episodes != null
+    anime?.episodes != null
       ? `${anime.episodes} episódio${anime.episodes === 1 ? "" : "s"}`
       : "lançando";
-  const year = anime.year || "—";
-  const score = anime.score != null ? anime.score : "—";
+  const year = anime?.year || "—";
+  const score = anime?.score != null ? anime.score : "—";
   const imageUrl = anime.images?.jpg?.image_url;
 
   return (
     <div
       className={`${cardMaxWidth} bg-white rounded-md shadow-sm overflow-hidden flex hover:bg-gray-100 active:bg-gray-200 cursor-pointer`}
     >
-      <div className={`flex items-center flex-grow ${contentPadding}`}>
-        {imageUrl && (
-          <div
-            className={`${imageWidth} ${imageHeight} relative flex-shrink-0 mr-4`}
-          >
-            <Image
-              src={imageUrl}
-              alt={rawTitle}
-              fill
-              className="object-cover rounded"
-            />
-          </div>
-        )}
-        <div>
-          <h3 className="font-medium text-sm" title={rawTitle}>
-            {title}
-          </h3>
-          <p className="text-sm text-gray-600 mt-1">{episodes}</p>
-          <p className="text-sm text-gray-600">Ano: {year}</p>
-          <div className="flex items-center mt-1">
-            <span className="text-sm font-medium">{score}</span>
-            <svg
-              className="w-4 h-4 text-yellow-400 ml-1"
-              fill="currentColor"
-              viewBox="0 0 20 20"
+      <Link href={`/obra/anime/${id}`}>
+        <div className={`flex items-center flex-grow ${contentPadding}`}>
+          {imageUrl && (
+            <div
+              className={`${imageWidth} ${imageHeight} relative flex-shrink-0 mr-4`}
             >
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
+              <Image
+                src={imageUrl}
+                alt={rawTitle}
+                fill
+                className="object-cover rounded"
+              />
+            </div>
+          )}
+          <div>
+            <h3 className="font-medium text-sm" title={rawTitle}>
+              {title}
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">{episodes}</p>
+            <p className="text-sm text-gray-600">Ano: {year}</p>
+            <div className="flex items-center mt-1">
+              <span className="text-sm font-medium">{score}</span>
+              <svg
+                className="w-4 h-4 text-yellow-400 ml-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            </div>
           </div>
         </div>
-      </div>
-
+      </Link>
       <div className="flex flex-col justify-center pr-6 pl-6 border-l-2 border-gray-200 my-2 space-y-3">
         {/* Botão “Comentar” */}
         <button

@@ -25,8 +25,8 @@ const MangaCard = ({ manga }) => {
   const score = manga.score;
 
   return (
-    <Link href={`/obra/${id}`}>
-      <div className=" bg-white rounded-lg shadow-md overflow-hidden flex hover:bg-gray-100 active:bg-gray-200 cursor-pointer justify-between items-center">
+    <div className=" bg-white rounded-lg shadow-md overflow-hidden flex hover:bg-gray-100 active:bg-gray-200 cursor-pointer justify-between items-center">
+      <Link href={`/obra/manga/${id}`}>
         {/* Esquerda: imagem + infos */}
         <div className={`flex items-center ${infoPadding}`}>
           {imageUrl && (
@@ -55,55 +55,54 @@ const MangaCard = ({ manga }) => {
             </div>
           </div>
         </div>
-
-        {/* direita: comentar + favoritar */}
-        <div className="flex-col justify-center pr-6 pl-6 border-l-2 border-gray-200  ">
-          <button
-            className={`flex items-center text-xs font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-300 active:bg-gray-400 cursor-pointer rounded-md p-2 transition`}
-            onClick={() => alert("Abrir comentários para: " + title)}
+      </Link>
+      {/* direita: comentar + favoritar */}
+      <div className="flex-col justify-center pr-6 pl-6 border-l-2 border-gray-200  ">
+        <button
+          className={`flex items-center text-xs font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-300 active:bg-gray-400 cursor-pointer rounded-md p-2 transition`}
+          onClick={() => alert("Abrir comentários para: " + title)}
+        >
+          <svg
+            className="w-5 h-5 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-5 h-5 mr-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
-            Comentar
-          </button>
-          <div className="w-px bg-gray-200 my-2" />
-          <button
-            className={`flex items-center text-xs font-medium rounded-md p-2 transition ${
-              isFavorite
-                ? "text-red-500 hover:text-red-700 hover:bg-red-100"
-                : "text-gray-600 hover:bg-gray-300 active:bg-gray-400 cursor-pointer"
-            }`}
-            onClick={() => setIsFavorite(!isFavorite)}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            />
+          </svg>
+          Comentar
+        </button>
+        <div className="w-px bg-gray-200 my-2" />
+        <button
+          className={`flex items-center text-xs font-medium rounded-md p-2 transition ${
+            isFavorite
+              ? "text-red-500 hover:text-red-700 hover:bg-red-100"
+              : "text-gray-600 hover:bg-gray-300 active:bg-gray-400 cursor-pointer"
+          }`}
+          onClick={() => setIsFavorite(!isFavorite)}
+        >
+          <svg
+            className="w-5 h-5 mr-1"
+            fill={isFavorite ? "currentColor" : "none"}
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-5 h-5 mr-1"
-              fill={isFavorite ? "currentColor" : "none"}
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-            {isFavorite ? "Favoritado" : "Favoritar"}
-          </button>
-        </div>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+            />
+          </svg>
+          {isFavorite ? "Favoritado" : "Favoritar"}
+        </button>
       </div>
-    </Link>
+    </div>
   );
 };
 

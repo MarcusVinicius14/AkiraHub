@@ -4,9 +4,9 @@ import MangaCard from "../../../../components/MangaCard";
 import { supabase } from "../../../../../lib/supabaseClient";
 
 export default function TopMangaList({ limit = 4 }) {
-  const [items, setItems]     = useState([]);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchTopMangas() {
@@ -20,6 +20,7 @@ export default function TopMangaList({ limit = 4 }) {
 
         const formatted = data.map((m) => ({
           ...m,
+          id: m.mal_id,
           title_english: m.title,
           images: { jpg: { image_url: m.image_url } },
         }));
@@ -36,7 +37,7 @@ export default function TopMangaList({ limit = 4 }) {
   }, [limit]);
 
   if (loading) return <div>Carregando top mangás…</div>;
-  if (error)   return <div>Erro: {error}</div>;
+  if (error) return <div>Erro: {error}</div>;
 
   return (
     <div className="space-y-4">

@@ -4,9 +4,9 @@ import MangaCard from "../../../../components/MangaCard";
 import { supabase } from "../../../../../lib/supabaseClient";
 
 export default function RandomManga({ count = 4 }) {
-  const [items, setItems]     = useState([]);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   function shuffle(array) {
     const a = array.slice();
@@ -20,9 +20,7 @@ export default function RandomManga({ count = 4 }) {
   useEffect(() => {
     async function fetchRandomMangas() {
       try {
-        const { data, error } = await supabase
-          .from("mangas")
-          .select("*");
+        const { data, error } = await supabase.from("mangas").select("*");
         if (error) throw error;
         if (!data || data.length === 0) {
           setItems([]);
@@ -34,6 +32,7 @@ export default function RandomManga({ count = 4 }) {
 
         const formatted = selected.map((m) => ({
           ...m,
+          id: m.mal_id,
           title_english: m.title,
           images: { jpg: { image_url: m.image_url } },
         }));
@@ -50,12 +49,12 @@ export default function RandomManga({ count = 4 }) {
   }, [count]);
 
   if (loading) return <div>Carregando mangas aleatórios…</div>;
-  if (error)   return <div>Erro: {error}</div>;
+  if (error) return <div>Erro: {error}</div>;
 
   return (
     <div className="space-y-4">
-      {items.map((m) => (
-        <MangaCard key={m.mal_id} manga={m} />
+      {items.map((manga) => (
+        <MangaCard key={manga.mal_id} manga={manga} />
       ))}
     </div>
   );
