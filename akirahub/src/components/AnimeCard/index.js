@@ -29,7 +29,7 @@ export default function AnimeCard({ anime }) {
 
   return (
     <div
-      className={`${cardMaxWidth} bg-white rounded-md shadow-sm overflow-hidden flex hover:bg-gray-100 active:bg-gray-200 cursor-pointer`}
+      className={`${cardMaxWidth} bg-white rounded-md shadow-sm overflow-hidden flex hover:bg-gray-100 active:bg-gray-200 cursor-pointer justify-between items-center`}
     >
       <Link href={`/obra/anime/${id}`}>
         <div className={`flex items-center flex-grow ${contentPadding}`}>
