@@ -3,47 +3,12 @@ import React, { useEffect, useState } from "react";
 import TopNavbar from "../../components/TopNavbar";
 import Header from "../../components/Header";
 import AnimeFiltersRow from "./components/AnimeFiltersRow";
-import LatestAdditionCard from "../../components/LatestAdditionCard";
 import NewsList from "../../components/NewsList";
 import AnimeCard from "../../components/AnimeCard";
 import { supabase } from "../../../lib/supabaseClient";
+import AnimeList from "@/components/AnimeList";
 
 export default function AnimePage() {
-  const [topAnimes, setTopAnimes] = useState([]);
-
-  useEffect(() => {
-    async function fetchTopAnimes() {
-      try {
-        // busca em 'top_anime' sem limit, para depois ordenar no cliente
-        const { data, error } = await supabase
-          .from("top_anime")
-          .select("*");
-        if (error) throw error;
-
-        const sorted = data
-          .slice()
-          .sort((a, b) => parseFloat(b.score) - parseFloat(a.score))
-          .slice(0, 4);
-
-        const formatted = sorted.map((a) => ({
-          mal_id: a.mal_id,
-          title: a.title,
-          title_english: a.title_english || a.title,
-          images: { jpg: { image_url: a.image_url } },
-          episodes: a.episodes,
-          score: a.score,
-          year: a.year,
-        }));
-
-        setTopAnimes(formatted);
-      } catch (err) {
-        console.error("Erro ao buscar top_anime:", err);
-        setTopAnimes([]);
-      }
-    }
-    fetchTopAnimes();
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-100">
       <TopNavbar />
@@ -55,7 +20,7 @@ export default function AnimePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
           <div className="space-y-4 overflow-auto">
             <h2 className="text-xl font-bold">Próxima temporada</h2>
-            <SeasonList table="season_upcoming" limit={4} />
+            <SeasonList table="season_upcoming" />
           </div>
 
           <div className="space-y-6 flex flex-col">
@@ -65,7 +30,7 @@ export default function AnimePage() {
             </div>
             <div>
               <h2 className="text-xl font-bold mb-2">Top Animes</h2>
-              <div className="grid grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-2 gap-4">
                 {topAnimes.map((anime) => (
                   <LatestAdditionCard
                     key={anime.mal_id}
@@ -73,13 +38,14 @@ export default function AnimePage() {
                     type="anime"
                   />
                 ))}
-              </div>
+              </div> */}
+              <AnimeList />
             </div>
           </div>
 
           <div className="space-y-4 overflow-auto">
             <h2 className="text-xl font-bold">Temporada atual</h2>
-            <SeasonList table="season_now" limit={4} />
+            <SeasonList table="season_now" />
           </div>
         </div>
       </main>
@@ -87,17 +53,21 @@ export default function AnimePage() {
   );
 }
 
-function SeasonList({ table, limit }) {
-  const [items, setItems]     = useState([]);
+function SeasonList({ table }) {
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
+  const [visibleLatestAddiction, setvisibleLatestAddiction] = useState([]);
+  const [page, setPage] = useState(1);
+  const cardsPerPage = 6;
 
   useEffect(() => {
     async function fetchSeasons() {
       try {
         const { data, error } = await supabase
           .from(table)
-          .select("*");
+          .select("*")
+          .limit(30);
         if (error) throw error;
 
         let processed = data.slice();
@@ -107,8 +77,7 @@ function SeasonList({ table, limit }) {
           processed.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
         }
 
-        const limited = processed.slice(0, limit);
-        const formatted = limited.map((a) => ({
+        const formatted = data.map((a) => ({
           mal_id: a.mal_id,
           title: a.title,
           title_english: a.title_english || a.title,
@@ -119,6 +88,7 @@ function SeasonList({ table, limit }) {
         }));
 
         setItems(formatted);
+        setvisibleLatestAddiction(formatted.slice(0, cardsPerPage));
       } catch (err) {
         console.error(`Erro ao buscar ${table}:`, err);
         setError(err.message || "Erro desconhecido");
@@ -127,16 +97,37 @@ function SeasonList({ table, limit }) {
       }
     }
     fetchSeasons();
-  }, [table, limit]);
+  }, [table]);
+
+  const handleVerMais = () => {
+    const nextPage = page + 1;
+    const startIndex = 0;
+    const endIndex = nextPage * cardsPerPage;
+
+    setvisibleLatestAddiction(items.slice(startIndex, endIndex));
+    setPage(nextPage);
+  };
 
   if (loading) return <div>Carregando...</div>;
-  if (error)   return <div className="text-red-500">Erro: {error}</div>;
+  if (error) return <div className="text-red-500">Erro: {error}</div>;
 
   return (
-    <div className="space-y-4">
-      {items.map((anime) => (
-        <AnimeCard key={anime.mal_id} anime={anime} />
-      ))}
+    <div>
+      <div className="space-y-4">
+        {visibleLatestAddiction.map((anime) => (
+          <AnimeCard key={anime.mal_id} anime={anime} />
+        ))}
+      </div>
+      {visibleLatestAddiction.length < items.length && (
+        <div className=" flex items-center justify-center mt-5 ">
+          <button
+            onClick={handleVerMais}
+            className="bg-gray-200 hover:bg-gray-100 active:bg-gray-200 cursor-pointer text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Ver mais
+          </button>
+        </div>
+      )}
     </div>
   );
 }

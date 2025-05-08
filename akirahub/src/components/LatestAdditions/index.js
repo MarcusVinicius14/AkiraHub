@@ -4,9 +4,12 @@ import LatestAdditionCard from "../LatestAdditionCard";
 import { supabase } from "../../../lib/supabaseClient";
 
 export default function LatestAdditions({ type }) {
-  const [items, setItems]     = useState([]);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
+  const [visibleLatestAddiction, setvisibleLatestAddiction] = useState([]);
+  const [page, setPage] = useState(1);
+  const cardsPerPage = 2;
 
   useEffect(() => {
     async function fetchLatest() {
@@ -17,14 +20,14 @@ export default function LatestAdditions({ type }) {
             .from("top_anime")
             .select("*")
             .order("score", { descending: true })
-            .limit(2);
+            .limit(30);
         } else if (type === "manga") {
           response = await supabase
             .from("mangas")
             .select("*")
             .eq("year", 2024)
             .order("year", { descending: true })
-            .limit(2);
+            .limit(30);
         } else {
           throw new Error(`Tipo inválido: ${type}`);
         }
@@ -43,6 +46,7 @@ export default function LatestAdditions({ type }) {
         }));
 
         setItems(formatted);
+        setvisibleLatestAddiction(formatted.slice(0, cardsPerPage));
       } catch (err) {
         console.error("LatestAdditions:", err);
         setError(err.message);
@@ -54,14 +58,35 @@ export default function LatestAdditions({ type }) {
     fetchLatest();
   }, [type]);
 
+  const handleVerMais = () => {
+    const nextPage = page + 1;
+    const startIndex = 0;
+    const endIndex = nextPage * cardsPerPage;
+
+    setvisibleLatestAddiction(items.slice(startIndex, endIndex));
+    setPage(nextPage);
+  };
+
   if (loading) return <div>Carregando...</div>;
-  if (error)   return <div className="text-red-500">Erro: {error}</div>;
+  if (error) return <div className="text-red-500">Erro: {error}</div>;
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      {items.map((item) => (
-        <LatestAdditionCard key={item.mal_id} item={item} type={type} />
-      ))}
+    <div>
+      <div className="grid grid-cols-2 gap-4">
+        {visibleLatestAddiction.map((item) => (
+          <LatestAdditionCard key={item.mal_id} item={item} type={type} />
+        ))}
+      </div>
+      {visibleLatestAddiction.length < items.length && (
+        <div className=" flex items-center justify-center mt-5 ">
+          <button
+            onClick={handleVerMais}
+            className="bg-gray-200 hover:bg-gray-100 active:bg-gray-200 cursor-pointer text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Ver mais
+          </button>
+        </div>
+      )}
     </div>
   );
 }

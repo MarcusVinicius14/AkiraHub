@@ -19,7 +19,7 @@ export default function MangaPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-4">
           <div className="space-y-4 overflow-auto">
             <h2 className="text-xl font-bold">Top Mangás</h2>
-            <TopMangaList limit={5} />
+            <TopMangaList />
           </div>
 
           <div className="space-y-4 overflow-auto">
@@ -27,7 +27,7 @@ export default function MangaPage() {
               <h2 className="text-xl font-bold">
                 Recomendação com base nesse mangá
               </h2>
-              <MangaRecommendations count={4} />
+              <MangaRecommendations />
             </section>
           </div>
 
