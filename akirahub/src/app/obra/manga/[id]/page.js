@@ -35,7 +35,7 @@ export default function MangaDetails() {
             ...data,
             id: data.mal_id,
             title_english: data.title,
-            images: { jpg: { image_url: data.image_url } },
+            images: { jpg: { large_image_url: data.large_image_url } },
           };
 
           // Definir o mangá em um array para manter a consistência com o estado anterior
@@ -70,7 +70,7 @@ export default function MangaDetails() {
           <div className="w-32 h-44 relative mr-4 flex-shrink-0">
             <div className="bg-gray-300 w-full h-full rounded-md overflow-hidden">
               <Image
-                src={manga.image_url}
+                src={manga.large_image_url}
                 alt={manga.title}
                 width={128}
                 height={176}

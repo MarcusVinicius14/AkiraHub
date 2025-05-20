@@ -22,7 +22,7 @@ export default function TopMangaList({ limit = 4 }) {
           ...m,
           id: m.mal_id,
           title_english: m.title,
-          images: { jpg: { image_url: m.image_url } },
+          images: { jpg: { large_image_url: m.large_image_url } },
         }));
 
         setItems(formatted);

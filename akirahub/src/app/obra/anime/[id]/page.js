@@ -8,7 +8,7 @@ import { MessageSquare, Star, Clock, ThumbsUp } from "lucide-react";
 import TopNavbar from "@/components/TopNavbar";
 import Header from "@/components/Header";
 
-export default function MangaDetails() {
+export default function MangaDetails() { //lembrar de alterar o nome da classe
   const [commentText, setCommentText] = useState("");
   const [activeTab, setActiveTab] = useState("melhores");
   const [anime, setAnime] = useState(null);
@@ -70,7 +70,7 @@ export default function MangaDetails() {
             ...data,
             id: data.mal_id,
             title: data.title,
-            images: { jpg: { image_url: data.image_url } },
+            images: { jpg: { large_image_url: data.large_image_url } },
             episodios: data?.episodes,
             score: data?.score,
             year: data?.year,
@@ -109,7 +109,7 @@ export default function MangaDetails() {
           <div className="w-32 h-44 relative mr-4 flex-shrink-0">
             <div className="bg-gray-300 w-full h-full rounded-md overflow-hidden">
               <Image
-                src={anime.image_url}
+                src={anime.large_image_url}
                 alt={anime.title}
                 width={128}
                 height={176}
@@ -160,7 +160,7 @@ export default function MangaDetails() {
 
       {/* Links de compra */}
       <div className="bg-white shadow rounded-lg p-4 mb-4 mx-4">
-        <h2 className="font-bold text-lg mb-2">Onde ver o anime</h2>
+        <h2 className="font-bold text-lg mb-2">Onde ver o anmangaime</h2>
         <div className="flex flex-wrap gap-2">
           Fazer funcao para carregar links
         </div>

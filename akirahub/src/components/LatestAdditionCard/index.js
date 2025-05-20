@@ -7,7 +7,7 @@ export default function LatestAdditionCard({ item, type }) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const id = item.mal_id;
-  const imageUrl = item?.images?.jpg?.image_url;
+  const imageUrl = item?.images?.jpg?.large_image_url;
   const title = item?.title_english || item?.title;
   const episodes =
     type === "anime"

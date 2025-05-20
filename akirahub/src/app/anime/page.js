@@ -17,7 +17,7 @@ export default function AnimePage() {
         // busca em 'top_anime' sem limit, para depois ordenar no cliente
         const { data, error } = await supabase
           .from("top_anime")
-          .select("*");
+          .select("mal_id,title,large_image_url,episodes,score,year,genre1,genre2,genre3");
         if (error) throw error;
 
         const sorted = data
@@ -28,8 +28,7 @@ export default function AnimePage() {
         const formatted = sorted.map((a) => ({
           mal_id: a.mal_id,
           title: a.title,
-          title_english: a.title_english || a.title,
-          images: { jpg: { image_url: a.image_url } },
+          images: { jpg: { large_image_url: a.large_image_url } },
           episodes: a.episodes,
           score: a.score,
           year: a.year,
@@ -112,7 +111,7 @@ function SeasonList({ table, limit }) {
           mal_id: a.mal_id,
           title: a.title,
           title_english: a.title_english || a.title,
-          images: { jpg: { image_url: a.image_url } },
+          images: { jpg: { large_image_url: a.large_image_url } },
           episodes: a.episodes,
           score: a.score,
           year: a.year,

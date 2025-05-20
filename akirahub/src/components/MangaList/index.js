@@ -11,18 +11,17 @@ export default function MangaList() {
   useEffect(() => {
     async function fetchMangas() {
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from("mangas")
-          .select("*")
+          .select("mal_id, title, large_image_url, chapters, score, published_from, year")
           .order("mal_id", { ascending: true })
           .limit(6);
-        if (error) throw error;
 
         const formatted = data.map((m) => ({
           ...m,
           id: m.mal_id,
           title_english: m.title,
-          images: { jpg: { image_url: m.image_url } },
+          images: { jpg: { large_image_url: m.large_image_url } },
         }));
 
         setMangas(formatted);

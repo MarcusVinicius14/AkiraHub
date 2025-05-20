@@ -21,9 +21,9 @@ export default function LatestAdditions({ type }) {
         } else if (type === "manga") {
           response = await supabase
             .from("mangas")
-            .select("*")
-            .eq("year", 2024)
-            .order("year", { descending: true })
+            .select("mal_id, title, large_image_url, chapters, score, published_from, year")
+            .gte("score", 9.0)
+            .order("year", { ascending: false })
             .limit(2);
         } else {
           throw new Error(`Tipo inválido: ${type}`);
@@ -36,7 +36,7 @@ export default function LatestAdditions({ type }) {
           mal_id: a.mal_id,
           title: a.title,
           title_english: a.title_english || a.title,
-          images: { jpg: { image_url: a.image_url } },
+          images: { jpg: { large_image_url: a.large_image_url } },
           episodes: a.episodes,
           score: a.score,
           year: a.year,

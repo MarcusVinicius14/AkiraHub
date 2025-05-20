@@ -34,7 +34,7 @@ export default function MangaRecommendations({ count = 3 }) {
           ...baseManga,
           id: baseManga.mal_id,
           title_english: baseManga.title,
-          images: { jpg: { image_url: baseManga.image_url } },
+          images: { jpg: { large_image_url: baseManga.large_image_url } },
         });
 
         const others = all.filter((m) => m.mal_id !== baseManga.mal_id);
@@ -45,7 +45,7 @@ export default function MangaRecommendations({ count = 3 }) {
             ...m,
             id: m.mal_id,
             title_english: m.title,
-            images: { jpg: { image_url: m.image_url } },
+            images: { jpg: { large_image_url: m.large_image_url } },
           }))
         );
       } catch (err) {

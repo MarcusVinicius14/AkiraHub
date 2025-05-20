@@ -32,7 +32,7 @@ export default function AnimeList() {
           mal_id: a.mal_id,
           title: a.title,
           title_english: a.title_english || a.title,
-          images: { jpg: { image_url: a.image_url } },
+          images: { jpg: { large_image_url: a.large_image_url } },
           episodes: a.episodes,
           score: a.score,
           year: a.year,

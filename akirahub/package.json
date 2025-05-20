@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "akirahub",
   "version": "0.1.0",
   "private": true,
@@ -6,7 +7,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "export:csv": "node scripts/export_top_anime_csv.js",
+    "export:manga": "node scripts/export_all_manga_csv.js",
+    "export:season:now": "node scripts/export_season_now_csv.js",
+    "export:season:upcoming": "node scripts/export_season_upcoming_csv.js",
+    "export:anime": "node scripts/export_all_anime_csv.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
