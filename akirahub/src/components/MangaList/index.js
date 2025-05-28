@@ -25,7 +25,7 @@ export default function MangaList() {
           ...m,
           id: m.mal_id,
           title_english: m.title,
-          images: { jpg: { image_url: m.image_url } },
+          large_image_url: m.large_image_url,
         }));
 
         setMangas(formatted);

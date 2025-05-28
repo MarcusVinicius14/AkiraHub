@@ -23,7 +23,7 @@ export default function AnimeCard({ anime }) {
       : "lançando";
   const year = anime?.year || "—";
   const score = anime?.score != null ? anime.score : "—";
-  const imageUrl = anime.images?.jpg?.image_url;
+  const imageUrl = anime?.large_image_url;
 
   return (
     <div

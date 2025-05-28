@@ -14,7 +14,7 @@ const MangaCard = ({ manga }) => {
 
   // Dados
   const id = manga?.id;
-  const imageUrl = manga?.images?.jpg?.image_url;
+  const imageUrl = manga?.large_image_url;
   const title = manga.title_english || manga.title;
   const chapters =
     manga.chapters != null
