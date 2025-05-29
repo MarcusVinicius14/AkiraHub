@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import TopNavbar from "../../components/TopNavbar";
 import Header from "../../components/Header";
 import AnimeFiltersRow from "./components/AnimeFiltersRow";
-import LatestAdditionCard from "../../components/LatestAdditionCard";
 import NewsList from "../../components/NewsList";
 import AnimeCard from "../../components/AnimeCard";
 import { supabase } from "../../../lib/supabaseClient";
+import AnimeList from "@/components/AnimeList";
 
 export default function AnimePage() {
   const [selectedGenre, setSelectedGenre] = useState(null);
@@ -157,7 +157,10 @@ function TopAnimeList({ selectedGenre }) {
 function SeasonList({ table, limit, selectedGenre }) {
   const [items, setItems]     = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
+  const [visibleLatestAddiction, setvisibleLatestAddiction] = useState([]);
+  const [page, setPage] = useState(1);
+  const cardsPerPage = 6;
 
   useEffect(() => {
     async function fetchSeasons() {
@@ -218,10 +221,22 @@ function SeasonList({ table, limit, selectedGenre }) {
   }
 
   return (
-    <div className="space-y-4">
-      {items.map((anime) => (
-        <AnimeCard key={anime.mal_id} anime={anime} />
-      ))}
+    <div>
+      <div className="space-y-4">
+        {visibleLatestAddiction.map((anime) => (
+          <AnimeCard key={anime.mal_id} anime={anime} />
+        ))}
+      </div>
+      {visibleLatestAddiction.length < items.length && (
+        <div className=" flex items-center justify-center mt-5 ">
+          <button
+            onClick={handleVerMais}
+            className="bg-gray-200 hover:bg-gray-100 active:bg-gray-200 cursor-pointer text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Ver mais
+          </button>
+        </div>
+      )}
     </div>
   );
 }

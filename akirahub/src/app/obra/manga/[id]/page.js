@@ -35,7 +35,11 @@ export default function MangaDetails() {
             ...data,
             id: data.mal_id,
             title_english: data.title,
+<<<<<<< HEAD
             images: { jpg: { large_image_url: data.large_image_url } },
+=======
+            large_image_url: data.large_image_url,
+>>>>>>> a5e7dae38d6c2a3e772c1f29615581fd40500ead
           };
 
           // Definir o mangá em um array para manter a consistência com o estado anterior

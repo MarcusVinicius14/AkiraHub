@@ -15,9 +15,7 @@ export default function AnimeCard({ anime }) {
   const id = anime?.mal_id;
   const rawTitle = anime?.title_english || anime?.title;
   const title =
-    rawTitle.length > maxTitleLen
-      ? rawTitle.slice(0, maxTitleLen) + "..."
-      : rawTitle;
+    rawTitle > maxTitleLen ? rawTitle.slice(0, maxTitleLen) + "..." : rawTitle;
 
   const episodes =
     anime?.episodes != null
@@ -25,14 +23,18 @@ export default function AnimeCard({ anime }) {
       : "lançando";
   const year = anime?.year || "—";
   const score = anime?.score != null ? anime.score : "—";
+<<<<<<< HEAD
   const imageUrl = anime.images?.jpg?.large_image_url;
+=======
+  const imageUrl = anime?.large_image_url;
+>>>>>>> a5e7dae38d6c2a3e772c1f29615581fd40500ead
 
   return (
     <div
       className={`${cardMaxWidth} bg-white rounded-md shadow-sm overflow-hidden flex hover:bg-gray-100 active:bg-gray-200 cursor-pointer justify-between items-center`}
     >
       <Link href={`/obra/anime/${id}`}>
-        <div className={`flex items-center flex-grow ${contentPadding}`}>
+        <div className={`flex items-center ${contentPadding}`}>
           {imageUrl && (
             <div
               className={`${imageWidth} ${imageHeight} relative flex-shrink-0 mr-4`}

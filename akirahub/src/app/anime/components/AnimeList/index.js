@@ -23,7 +23,11 @@ export default function AnimeList() {
           mal_id: a.mal_id,
           title: a.title,
           title_english: a.title,
+<<<<<<< HEAD
           images: { jpg: { large_image_url: a.large_image_url } },
+=======
+          large_image_url: a.large_image_url,
+>>>>>>> a5e7dae38d6c2a3e772c1f29615581fd40500ead
           episodes: a.episodes,
           score: a.score,
           year: a.year,

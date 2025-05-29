@@ -42,15 +42,28 @@ export default function MangaPage() {
           {/* Top Mangás */}
           <div className="space-y-4 overflow-auto">
             <h2 className="text-xl font-bold">Top Mangás</h2>
+<<<<<<< HEAD
             <TopMangaList limit={5} selectedGenre={selectedGenre} />
+=======
+            <TopMangaList />
+>>>>>>> a5e7dae38d6c2a3e772c1f29615581fd40500ead
           </div>
 
           {/* Recomendação */}
           <div className="space-y-4 overflow-auto">
+<<<<<<< HEAD
             <h2 className="text-xl font-bold">
               Recomendação com base nesse mangá
             </h2>
             <MangaRecommendations count={4} selectedGenre={selectedGenre} />
+=======
+            <section>
+              <h2 className="text-xl font-bold">
+                Recomendação com base nesse mangá
+              </h2>
+              <MangaRecommendations />
+            </section>
+>>>>>>> a5e7dae38d6c2a3e772c1f29615581fd40500ead
           </div>
 
           {/* Aleatórios */}

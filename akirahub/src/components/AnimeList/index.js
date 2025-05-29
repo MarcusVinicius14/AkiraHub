@@ -4,9 +4,12 @@ import AnimeCard from "../AnimeCard";
 import { supabase } from "../../../lib/supabaseClient";
 
 export default function AnimeList() {
-  const [animes, setAnimes]   = useState([]);
+  const [animes, setAnimes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
+  const [visibleAnimes, setVisibleAnimes] = useState([]);
+  const [page, setPage] = useState(1);
+  const cardsPerPage = 6;
 
   useEffect(() => {
     async function fetchAnimes() {
@@ -14,7 +17,8 @@ export default function AnimeList() {
         const { data, error } = await supabase
           .from("top_anime")
           .select("*")
-          .order("score", { descending: true });
+          .order("score", { descending: true })
+          .limit(30);
         if (error) throw error;
 
         if (!data || data.length === 0) {
@@ -28,11 +32,15 @@ export default function AnimeList() {
           return sb - sa; // maior score primeiro
         });
 
-        const formatted = sorted.slice(0, 6).map((a) => ({
+        const formatted = sorted.map((a) => ({
           mal_id: a.mal_id,
           title: a.title,
           title_english: a.title_english || a.title,
+<<<<<<< HEAD
           images: { jpg: { large_image_url: a.large_image_url } },
+=======
+          large_image_url: a.large_image_url, // Corrigido para usar large_image_url
+>>>>>>> a5e7dae38d6c2a3e772c1f29615581fd40500ead
           episodes: a.episodes,
           score: a.score,
           year: a.year,
@@ -40,6 +48,7 @@ export default function AnimeList() {
         }));
 
         setAnimes(formatted);
+        setVisibleAnimes(formatted.slice(0, cardsPerPage));
       } catch (err) {
         console.error("AnimeList:", err);
         setError(err.message);
@@ -50,15 +59,41 @@ export default function AnimeList() {
     fetchAnimes();
   }, []);
 
+  const handleVerMais = () => {
+    const nextPage = page + 1;
+    const startIndex = 0;
+    const endIndex = nextPage * cardsPerPage;
+
+    setVisibleAnimes(animes.slice(startIndex, endIndex));
+    setPage(nextPage);
+  };
+
   if (loading) return <div>Carregando animes...</div>;
-  if (error)   return <div className="text-red-500">Erro: {error}</div>;
-  if (animes.length === 0) return <div>Nenhum anime encontrado em <code>top_anime</code>.</div>;
+  if (error) return <div className="text-red-500">Erro: {error}</div>;
+  if (animes.length === 0)
+    return (
+      <div>
+        Nenhum anime encontrado em <code>top_anime</code>.
+      </div>
+    );
 
   return (
-    <div className="space-y-4">
-      {animes.map((anime) => (
-        <AnimeCard key={anime.mal_id} anime={anime} />
-      ))}
+    <div>
+      <div className="space-y-4">
+        {visibleAnimes.map((anime) => (
+          <AnimeCard key={anime.mal_id} anime={anime} />
+        ))}
+      </div>
+      {visibleAnimes.length < animes.length && (
+        <div className=" flex items-center justify-center mt-5 ">
+          <button
+            onClick={handleVerMais}
+            className="bg-gray-200 hover:bg-gray-100 active:bg-gray-200 cursor-pointer text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Ver mais
+          </button>
+        </div>
+      )}
     </div>
   );
 }

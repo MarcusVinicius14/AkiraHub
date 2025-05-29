@@ -7,6 +7,9 @@ export default function MangaList() {
   const [mangas, setMangas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [visibleMangas, setVisibleMangas] = useState([]);
+  const [page, setPage] = useState(1);
+  const cardsPerPage = 6;
 
   useEffect(() => {
     async function fetchMangas() {
@@ -15,16 +18,26 @@ export default function MangaList() {
           .from("mangas")
           .select("mal_id, title, large_image_url, chapters, score, published_from, year")
           .order("mal_id", { ascending: true })
+<<<<<<< HEAD
           .limit(6);
+=======
+          .limit(30);
+        if (error) throw error;
+>>>>>>> a5e7dae38d6c2a3e772c1f29615581fd40500ead
 
         const formatted = data.map((m) => ({
           ...m,
           id: m.mal_id,
           title_english: m.title,
+<<<<<<< HEAD
           images: { jpg: { large_image_url: m.large_image_url } },
+=======
+          large_image_url: m.large_image_url,
+>>>>>>> a5e7dae38d6c2a3e772c1f29615581fd40500ead
         }));
 
         setMangas(formatted);
+        setVisibleMangas(formatted.slice(0, cardsPerPage));
       } catch (err) {
         console.error("MangaList:", err);
         setError(err.message);
@@ -35,14 +48,44 @@ export default function MangaList() {
     fetchMangas();
   }, []);
 
+  const handleVerMais = () => {
+    const nextPage = page + 1;
+    const startIndex = 0;
+    const endIndex = nextPage * cardsPerPage;
+
+    setVisibleMangas(mangas.slice(startIndex, endIndex));
+    setPage(nextPage);
+  };
+
+  //  if (loading) {
+  //    return (
+  //      <div className="w-full flex justify-center py-10">
+  //       <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+  //     </div>
+  //    );
+  // }
+
   if (loading) return <div>Carregando...</div>;
   if (error) return <div>Erro: {error}</div>;
 
   return (
-    <div className="space-y-4">
-      {mangas.map((manga) => (
-        <MangaCard key={manga.mal_id} manga={manga} />
-      ))}
+    <div>
+      <div className="space-y-4">
+        {visibleMangas.map((manga) => (
+          <MangaCard key={manga.mal_id} manga={manga} />
+        ))}
+      </div>
+
+      {visibleMangas.length < mangas.length && (
+        <div className=" flex items-center justify-center mt-5 ">
+          <button
+            onClick={handleVerMais}
+            className="bg-gray-200 hover:bg-gray-100 active:bg-gray-200 cursor-pointer text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Ver mais
+          </button>
+        </div>
+      )}
     </div>
   );
 }
