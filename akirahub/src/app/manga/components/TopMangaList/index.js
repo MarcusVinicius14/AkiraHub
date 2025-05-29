@@ -1,48 +1,63 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import MangaCard from "../../../../components/MangaCard";
 import { supabase } from "../../../../../lib/supabaseClient";
 
-export default function TopMangaList({ limit = 4 }) {
+export default function TopMangaList({ limit = 5, selectedGenre }) {
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchTopMangas() {
+    async function fetchTop() {
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from("mangas")
-          .select("*")
-          .order("mal_id", { ascending: true })
+          .select(
+            "mal_id,title,large_image_url,chapters,score,published_from,year,genre1,genre2,genre3"
+          );
+
+        if (selectedGenre) {
+          query = query.or(
+            `genre1.eq.${selectedGenre},genre2.eq.${selectedGenre},genre3.eq.${selectedGenre}`
+          );
+        }
+
+        const { data = [], error } = await query
+          .order("score", { descending: true })
           .limit(limit);
         if (error) throw error;
 
-        const formatted = data.map((m) => ({
-          ...m,
-          id: m.mal_id,
-          title_english: m.title,
-          images: { jpg: { large_image_url: m.large_image_url } },
-        }));
-
-        setItems(formatted);
+        setItems(data);
       } catch (err) {
         console.error("TopMangaList:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        setItems([]);
       }
     }
-    fetchTopMangas();
-  }, [limit]);
+    fetchTop();
+  }, [limit, selectedGenre]);
 
-  if (loading) return <div>Carregando top mangás…</div>;
-  if (error) return <div>Erro: {error}</div>;
+  if (selectedGenre && items.length === 0) {
+    return (
+      <div className="p-4 text-center text-gray-500">
+        Nenhum mangá encontrado em “{selectedGenre}”.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      {items.map((manga) => (
-        <MangaCard key={manga.mal_id} manga={manga} />
+      {items.map((m) => (
+        <MangaCard
+          key={m.mal_id}
+          manga={{
+            mal_id: m.mal_id,
+            title: m.title,
+            images: { jpg: { image_url: m.large_image_url } },
+            chapters: m.chapters,
+            published: { from: m.published_from },
+            score: m.score,
+            year: m.year,
+          }}
+        />
       ))}
     </div>
   );

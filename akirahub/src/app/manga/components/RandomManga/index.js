@@ -1,60 +1,56 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import MangaCard from "../../../../components/MangaCard";
 import { supabase } from "../../../../../lib/supabaseClient";
 
-export default function RandomManga({ count = 4 }) {
+export default function RandomManga({ selectedGenre, count = 5 }) {
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  function shuffle(array) {
-    const a = array.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
 
   useEffect(() => {
-    async function fetchRandomMangas() {
+    async function fetchRandom() {
       try {
-        const { data, error } = await supabase.from("mangas").select("*");
-        if (error) throw error;
-        if (!data || data.length === 0) {
-          setItems([]);
-          return;
+        let query = supabase
+          .from("mangas")
+          .select(
+            "mal_id,title,large_image_url,chapters,score,published_from,genre1,genre2,genre3"
+          );
+        if (selectedGenre) {
+          query = query.or(
+            `genre1.eq.${selectedGenre},genre2.eq.${selectedGenre},genre3.eq.${selectedGenre}`
+          );
         }
-
-        const shuffled = shuffle(data);
-        const selected = shuffled.slice(0, count);
-
-        const formatted = selected.map((m) => ({
-          ...m,
+        const { data = [], error } = await query;
+        if (error) throw error;
+        const shuffled = data.sort(() => 0.5 - Math.random()).slice(0, count);
+        const formatted = shuffled.map((m) => ({
           id: m.mal_id,
           title_english: m.title,
-          images: { jpg: { large_image_url: m.large_image_url } },
+          images: { jpg: { image_url: m.large_image_url } },
+          chapters: m.chapters,
+          published: { from: m.published_from },
+          score: m.score,
         }));
-
         setItems(formatted);
       } catch (err) {
         console.error("RandomManga:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        setItems([]);
       }
     }
-    fetchRandomMangas();
-  }, [count]);
+    fetchRandom();
+  }, [selectedGenre, count]);
 
-  if (loading) return <div>Carregando mangas aleatórios…</div>;
-  if (error) return <div>Erro: {error}</div>;
+  if (selectedGenre && items.length === 0) {
+    return (
+      <div className="p-4 text-center text-gray-500">
+        Nenhum mangá aleatório disponível para “{selectedGenre}”.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      {items.map((manga) => (
-        <MangaCard key={manga.mal_id} manga={manga} />
+      {items.map((m) => (
+        <MangaCard key={m.id} manga={m} />
       ))}
     </div>
   );
