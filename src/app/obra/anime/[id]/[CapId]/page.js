@@ -3,45 +3,24 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { supabase } from "../../../../../../lib/supabaseClient";
-import profileimage from "../../../../../../public/profileimage.svg";
 import {
   MessageSquare,
   Star,
   Clock,
-  ThumbsUp,
   ArrowLeft,
   Play,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import DisqusComments from "@/components/DisqusComments";
 import TopNavbar from "@/components/TopNavbar";
 import Header from "@/components/Header";
 import Link from "next/link";
 
 export default function EpisodeDetails() {
-  const [commentText, setCommentText] = useState("");
-  const [activeTab, setActiveTab] = useState("melhores");
   const [anime, setAnime] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      user: "AnimeOtaku2024",
-      time: "2 horas atrás",
-      rating: 9.5,
-      content: "Que episódio incrível! A animação estava perfeita nessa luta.",
-      likes: 15,
-    },
-    {
-      id: 2,
-      user: "FullmetalFan",
-      time: "5 horas atrás",
-      rating: 10.0,
-      content: "Edward nunca falha em me surpreender com sua determinação.",
-      likes: 8,
-    },
-  ]);
 
   const params = useParams();
   const animeId = params.id;
@@ -153,20 +132,6 @@ export default function EpisodeDetails() {
     fetchData();
   }, [animeId]);
 
-  const handleAddComment = () => {
-    if (commentText.trim()) {
-      const newComment = {
-        id: comments.length + 1,
-        user: "Você",
-        time: "Agora",
-        rating: 0,
-        content: commentText,
-        likes: 0,
-      };
-      setComments([newComment, ...comments]);
-      setCommentText("");
-    }
-  };
 
   if (loading)
     return (
@@ -323,113 +288,9 @@ export default function EpisodeDetails() {
       {/* Comentários */}
       <div className="bg-white shadow rounded-lg p-4 mx-4">
         <h2 className="font-bold text-lg mb-4">Comentários do Episódio</h2>
-
-        {/* Campo de comentário */}
-        <div className="flex mb-6">
-          <div className="w-10 h-10 mr-3">
-            <div className="rounded-full bg-gray-300 w-full h-full overflow-hidden">
-              <Image
-                src={profileimage}
-                alt="Avatar"
-                width={40}
-                height={40}
-                className="object-cover"
-              />
-            </div>
-          </div>
-          <div className="flex-grow">
-            <textarea
-              className="w-full border rounded-lg p-2 text-sm"
-              placeholder={`Escreva um comentário sobre o episódio ${episodeNumber}...`}
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              rows={2}
-            />
-            <button
-              onClick={handleAddComment}
-              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 cursor-pointer transition text-sm"
-            >
-              Comentar
-            </button>
-          </div>
-        </div>
-
-        {/* Tabs de filtro */}
-        <div className="flex justify-end mb-4">
-          <div className="flex text-sm">
-            <button
-              className={`px-3 py-1 hover:bg-gray-100 active:bg-gray-200 cursor-pointer ${
-                activeTab === "melhores"
-                  ? "font-bold text-black"
-                  : "text-gray-500"
-              }`}
-              onClick={() => setActiveTab("melhores")}
-            >
-              Melhores
-            </button>
-            <button
-              className={`px-3 py-1 hover:bg-gray-100 active:bg-gray-200 cursor-pointer ${
-                activeTab === "recentes"
-                  ? "font-bold text-black"
-                  : "text-gray-500"
-              }`}
-              onClick={() => setActiveTab("recentes")}
-            >
-              Mais recentes
-            </button>
-            <button
-              className={`px-3 py-1 hover:bg-gray-100 active:bg-gray-200 cursor-pointer ${
-                activeTab === "amigos"
-                  ? "font-bold text-black"
-                  : "text-gray-500"
-              }`}
-              onClick={() => setActiveTab("amigos")}
-            >
-              Meus amigos
-            </button>
-          </div>
-        </div>
-
-        {/* Lista de comentários */}
-        <div className="space-y-4">
-          {comments.map((comment) => (
-            <div key={comment.id} className="flex pb-4 border-b last:border-0">
-              <div className="w-10 h-10 mr-3">
-                <div className="rounded-full bg-gray-300 w-full h-full overflow-hidden">
-                  <Image
-                    src={profileimage}
-                    alt="profileimage"
-                    width={40}
-                    height={40}
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-              <div className="flex-grow">
-                <div className="flex justify-between">
-                  <div>
-                    <h4 className="font-medium text-sm">{comment.user}</h4>
-                    <p className="text-xs text-gray-500">{comment.time}</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {comment.rating > 0 && (
-                      <span className="text-yellow-500 flex items-center text-xs">
-                        <Star size={12} className="mr-1 fill-yellow-500" />
-                        {comment.rating}
-                      </span>
-                    )}
-                    <button className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 active:bg-gray-200 cursor-pointer p-1 rounded">
-                      <ThumbsUp size={14} />
-                      <span className="text-xs ml-1">{comment.likes}</span>
-                    </button>
-                  </div>
-                </div>
-                <p className="text-sm mt-1">{comment.content}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <DisqusComments identifier={`anime-${animeId}-ep-${episodeNumber}`} title={`${anime.title} - Episódio ${episodeNumber}`} />
       </div>
+
     </div>
   );
 }

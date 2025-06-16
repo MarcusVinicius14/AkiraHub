@@ -3,14 +3,12 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { supabase } from "../../../../../lib/supabaseClient";
-import profileimage from "../../../../../public/profileimage.svg";
-import { MessageSquare, Star, Clock, ThumbsUp } from "lucide-react";
+import { MessageSquare, Star, Clock } from "lucide-react";
+import DisqusComments from "@/components/DisqusComments";
 import TopNavbar from "@/components/TopNavbar";
 import Header from "@/components/Header";
 
 export default function MangaDetails() {
-  const [commentText, setCommentText] = useState("");
-  const [activeTab, setActiveTab] = useState("melhores");
   const [manga, setManga] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -167,104 +165,9 @@ export default function MangaDetails() {
         </div>
       </div>
 
-      {/* Comentários */}
       <div className="bg-white shadow rounded-lg p-4 mx-4">
         <h2 className="font-bold text-lg mb-4">Comentários</h2>
-
-        {/* Campo de comentário */}
-        <div className="flex mb-6">
-          <div className="w-10 h-10 mr-3">
-            <div className="rounded-full bg-gray-300 w-full h-full overflow-hidden">
-              <Image
-                src={profileimage}
-                alt="Avatar"
-                width={40}
-                height={40}
-                className="object-cover"
-              />
-            </div>
-          </div>
-          <div className="flex-grow">
-            <textarea
-              className="w-full border rounded-lg p-2 text-sm"
-              placeholder="Escreva um comentário..."
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              rows={2}
-            />
-          </div>
-        </div>
-
-        {/* Tabs de filtro */}
-        <div className="flex justify-end mb-4">
-          <div className="flex text-sm">
-            <button
-              className={`px-3 py-1 hover:bg-gray-100 active:bg-gray-200 cursor-pointer ${
-                activeTab === "melhores"
-                  ? "font-bold text-black"
-                  : "text-gray-500"
-              }`}
-              onClick={() => setActiveTab("melhores")}
-            >
-              Melhores
-            </button>
-            <button
-              className={`px-3 py-1 hover:bg-gray-100 active:bg-gray-200 cursor-pointer ${
-                activeTab === "recentes"
-                  ? "font-bold text-black"
-                  : "text-gray-500"
-              }`}
-              onClick={() => setActiveTab("recentes")}
-            >
-              Mais recentes
-            </button>
-            <button
-              className={`px-3 py-1 hover:bg-gray-100 active:bg-gray-200 cursor-pointer ${
-                activeTab === "amigos"
-                  ? "font-bold text-black"
-                  : "text-gray-500"
-              }`}
-              onClick={() => setActiveTab("amigos")}
-            >
-              Meus amigos
-            </button>
-          </div>
-        </div>
-
-        {/* Lista de comentários */}
-        <div className="space-y-4">
-          <div className="flex pb-4 border-b last:border-0">
-            <div className="w-10 h-10 mr-3">
-              <div className="rounded-full bg-gray-300 w-full h-full overflow-hidden">
-                <Image
-                  src={profileimage}
-                  alt="profileimage"
-                  width={40}
-                  height={40}
-                  className="object-cover"
-                />
-              </div>
-            </div>
-            <div className="flex-grow">
-              <div className="flex justify-between">
-                <div>
-                  <h4 className="font-medium text-sm">teste</h4>
-                  <p className="text-xs text-gray-500">1 min</p>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-yellow-500 flex items-center text-xs mr-4">
-                    <Star size={12} className="mr-1 fill-yellow-500" />
-                    Comentário 5
-                  </span>
-                  <button className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 active:bg-gray-200 cursor-pointer">
-                    <ThumbsUp size={14} />
-                  </button>
-                </div>
-              </div>
-              <p className="text-sm mt-1">comentario teste</p>
-            </div>
-          </div>
-        </div>
+        <DisqusComments identifier={`manga-${userId}`} title={manga.title} />
       </div>
     </div>
   );
