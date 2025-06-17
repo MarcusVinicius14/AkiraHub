@@ -2,6 +2,7 @@
 import { useEffect, useState, useMemo } from "react";
 
 
+
 export default function CommentsSection({ identifier }) {
   const [comments, setComments] = useState([]);
   const [content, setContent] = useState("");
@@ -38,7 +39,6 @@ export default function CommentsSection({ identifier }) {
     });
     return map;
   }, [comments]);
-
   useEffect(() => {
     async function fetchProfile() {
       try {
