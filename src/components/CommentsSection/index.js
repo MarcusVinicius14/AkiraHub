@@ -6,6 +6,8 @@ export default function CommentsSection({ identifier }) {
   const [comments, setComments] = useState([]);
   const [content, setContent] = useState("");
   const [username, setUsername] = useState("");
+  const [profile, setProfile] = useState(null);
+
 
   useEffect(() => {
     async function fetchComments() {
@@ -26,6 +28,23 @@ export default function CommentsSection({ identifier }) {
     fetchComments();
   }, [identifier]);
 
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await fetch('/api/profile');
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data);
+          if (data.username) setUsername(data.username);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar perfil', err);
+      }
+    }
+    fetchProfile();
+  }, []);
+
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!content.trim()) return;
@@ -33,7 +52,13 @@ export default function CommentsSection({ identifier }) {
       const res = await fetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier, username: username || null, content }),
+        body: JSON.stringify({
+          identifier,
+          username: username || null,
+          avatar_url: profile?.avatar_url || null,
+          content,
+        }),
+
       });
       if (!res.ok) {
         const err = await res.json();
@@ -53,15 +78,26 @@ export default function CommentsSection({ identifier }) {
     <div className="mt-4">
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="flex space-x-3 mb-2">
-          <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0" />
+          <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0 overflow-hidden">
+            {profile?.avatar_url && (
+              <img
+                src={profile.avatar_url}
+                alt="avatar"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
           <div className="flex-1 space-y-2">
-            <input
-              type="text"
-              placeholder="Seu nome"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full border rounded p-2 text-sm"
-            />
+            {!profile?.username && (
+              <input
+                type="text"
+                placeholder="Seu nome"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full border rounded p-2 text-sm"
+              />
+            )}
+
             <textarea
               placeholder="Escreva um comentário"
               value={content}
@@ -87,7 +123,16 @@ export default function CommentsSection({ identifier }) {
         )}
         {comments.map((comment) => (
           <div key={comment.id} className="flex space-x-3 border-t pt-4">
-            <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0" />
+            <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0 overflow-hidden">
+              {comment.avatar_url && (
+                <img
+                  src={comment.avatar_url}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+
             <div className="flex-1">
               <p className="font-semibold text-sm">
                 {comment.username || "Anônimo"}
