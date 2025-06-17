@@ -5,9 +5,9 @@ import { useParams } from "next/navigation";
 import { supabase } from "../../../../../lib/supabaseClient";
 import { MessageSquare, Star, Clock } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
-
 import TopNavbar from "@/components/TopNavbar";
 import Header from "@/components/Header";
+import Link from "next/link";
 
 export default function MangaDetails() {
   const [manga, setManga] = useState(null);
@@ -53,7 +53,7 @@ export default function MangaDetails() {
     }
 
     fetchManga();
-  }, []);
+  }, [userId]);
 
   if (loading) return <div>Carregando...</div>;
   if (error) return <div>Erro: {error}</div>;
@@ -138,38 +138,44 @@ export default function MangaDetails() {
       <div className="bg-white shadow rounded-lg p-4 mb-4 mx-4">
         <h2 className="font-bold text-lg mb-2">Capítulos</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="border rounded-md p-3  transition hover:bg-gray-100 active:bg-gray-200 cursor-pointer">
-            <div className="flex justify-between items-center mb-1">
-              <div className="font-medium">
-                Capítulo 1
-                <span className="ml-2 bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded">
-                  Novo
-                </span>
+          {Array.from({ length: manga.chapters || 1 }, (_, index) => (
+            <Link key={index} href={`/obra/manga/${userId}/${index + 1}`}>
+              <div className="border rounded-md p-3 hover:bg-gray-100 active:bg-gray-200 cursor-pointer">
+                <div className="flex justify-between items-center mb-1">
+                  <div className="font-medium">
+                    Capítulo {index + 1}
+                    {index === 0 && (
+                      <span className="ml-2 bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded">
+                        Novo
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center text-xs text-gray-500 justify-between">
+                  <div className="flex items-center">
+                    <MessageSquare size={12} className="mr-1" />
+                    <span> Comentários</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Clock size={12} className="mr-1" />
+                    <span>1 min</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center text-xs text-gray-500 justify-between">
-              <div className="flex items-center">
-                <MessageSquare size={12} className="mr-1" />
-                <span> Comentários</span>
-              </div>
-              <div className="flex items-center">
-                <Clock size={12} className="mr-1" />
-                <span>1 min</span>
-              </div>
-            </div>
+            </Link>
+          ))}
+        </div>
+        {manga.chapters > 4 && (
+          <div className="mt-4 text-center">
+            <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-100 active:bg-gray-200 cursor-pointer transition">
+              Ver mais
+            </button>
           </div>
-        </div>
-        <div className="mt-4 text-center">
-          <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-100 active:bg-gray-200 cursor-pointer transition">
-            Ver mais
-          </button>
-        </div>
+        )}
       </div>
-
       <div className="bg-white shadow rounded-lg p-4 mx-4">
         <h2 className="font-bold text-lg mb-4">Comentários</h2>
         <CommentsSection identifier={`manga-${userId}`} />
-
       </div>
     </div>
   );
