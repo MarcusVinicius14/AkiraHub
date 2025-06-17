@@ -22,6 +22,7 @@ export default function CommentsSection({ identifier }) {
         }
       } catch (err) {
         console.error("Erro inesperado ao carregar comentários", err);
+
       }
     }
     fetchComments();
@@ -47,6 +48,7 @@ export default function CommentsSection({ identifier }) {
     } catch (err) {
       console.error("Erro inesperado ao enviar comentário", err);
     }
+
   }
 
   return (
