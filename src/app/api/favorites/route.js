@@ -52,7 +52,7 @@ export async function GET(request) {
       for (const table of animeTables) {
         const { data: found, error: err } = await supabase
           .from(table)
-          .select('mal_id, title, title_english, large_image_url')
+          .select('mal_id, title, large_image_url')
           .eq('mal_id', fav.work_id)
           .single();
         if (found) {
@@ -75,7 +75,7 @@ export async function GET(request) {
     } else if (fav.work_type === 'manga') {
       const { data: manga } = await supabase
         .from('mangas')
-        .select('mal_id, title, title_english, large_image_url')
+        .select('mal_id, title, large_image_url')
         .eq('mal_id', fav.work_id)
         .single();
       if (manga) {
