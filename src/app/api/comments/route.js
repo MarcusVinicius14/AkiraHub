@@ -27,6 +27,7 @@ export async function GET(request) {
       .eq('identifier', identifier)
       .order('created_at', { ascending: false }));
   }
+
   if (error) {
     console.error('Erro ao buscar comentários', error);
     return NextResponse.json({ error: 'Erro ao buscar comentários' }, { status: 500 });
@@ -41,11 +42,13 @@ export async function GET(request) {
   }));
 
   return NextResponse.json(formatted);
+
 }
 
 export async function POST(request) {
   const body = await request.json();
   const { identifier, content, profile_id, username, avatar_url } = body;
+
   if (!identifier || !content) {
     return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
   }
@@ -62,6 +65,7 @@ export async function POST(request) {
       .select()
       .single());
   }
+
   if (error) {
     console.error('Erro ao inserir comentário', error);
     return NextResponse.json({ error: 'Erro ao inserir comentário' }, { status: 500 });
@@ -75,4 +79,5 @@ export async function POST(request) {
   };
 
   return NextResponse.json(result);
+
 }

@@ -58,3 +58,4 @@ create table comments (
 ```
 
 The `CommentsSection` component stores the user id when posting a message and, when reading, joins the `profiles` table to show the avatar beside each comment.
+
