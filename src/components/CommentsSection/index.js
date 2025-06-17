@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useMemo, useRef } from "react";
 
-
 export default function CommentsSection({ identifier }) {
   const [comments, setComments] = useState([]);
   const [content, setContent] = useState("");
