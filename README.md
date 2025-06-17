@@ -48,6 +48,7 @@ create table profiles (
   password text,
   favorite_anime_id integer references animes(mal_id),
   favorite_manga_id integer references mangas(mal_id)
+);
 
 create table comments (
   id serial primary key,
@@ -71,4 +72,3 @@ create table favorites (
 
 The `CommentsSection` component stores the user id when posting a message and, when reading, joins the `profiles` table to show the avatar beside each comment.
 You can authenticate with Supabase using the `/login` page before editing your profile.
-

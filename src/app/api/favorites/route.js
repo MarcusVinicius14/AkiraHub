@@ -44,13 +44,25 @@ export async function GET(request) {
   }
 
   const items = [];
+  const animeTables = ['animes', 'season_now', 'season_upcoming', 'top_anime'];
+
   for (const fav of data) {
     if (fav.work_type === 'anime') {
-      const { data: anime } = await supabase
-        .from('animes')
-        .select('mal_id, title, title_english, large_image_url')
-        .eq('mal_id', fav.work_id)
-        .single();
+      let anime = null;
+      for (const table of animeTables) {
+        const { data: found, error: err } = await supabase
+          .from(table)
+          .select('mal_id, title, title_english, large_image_url')
+          .eq('mal_id', fav.work_id)
+          .single();
+        if (found) {
+          anime = found;
+          break;
+        }
+        if (err && err.code !== 'PGRST116') {
+          console.error(`Erro ao consultar ${table}`, err);
+        }
+      }
       if (anime) {
         items.push({
           id: fav.id,
