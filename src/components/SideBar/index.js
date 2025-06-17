@@ -22,10 +22,15 @@ export default function SideBar({ isOpen, onClose }) {
   useEffect(() => {
     async function fetchProfile() {
       try {
+        const stored = localStorage.getItem('profile');
+        if (stored) {
+          setProfile(JSON.parse(stored));
+        }
         const res = await fetch('/api/profile');
         if (res.ok) {
           const data = await res.json();
           setProfile(data);
+          localStorage.setItem('profile', JSON.stringify(data));
         }
       } catch (err) {
         console.error('Erro ao buscar perfil', err);

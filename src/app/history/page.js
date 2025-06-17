@@ -48,7 +48,7 @@ export default function HistoryPage() {
                   <p className="font-semibold">{item.title}</p>
                   <p className="text-sm text-gray-500">{item.subtitle}</p>
                   {item.comment && (
-                    <p className="text-sm mt-1 text-gray-600 overflow-hidden text-ellipsis">
+                    <p className="text-sm mt-1 text-gray-600 overflow-hidden text-ellipsis line-clamp-2">
                       {item.comment}
                     </p>
                   )}
