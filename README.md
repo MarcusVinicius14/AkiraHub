@@ -48,6 +48,7 @@ create table profiles (
   password text,
   favorite_anime_id integer references animes(mal_id),
   favorite_manga_id integer references mangas(mal_id)
+
 );
 
 create table comments (
