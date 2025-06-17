@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 
 export default function CommentsSection({ identifier }) {
   const [comments, setComments] = useState([]);
@@ -8,6 +8,13 @@ export default function CommentsSection({ identifier }) {
   const [profile, setProfile] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
+  const replyRef = useRef(null);
+
+  useEffect(() => {
+    if (replyingTo && replyRef.current) {
+      replyRef.current.focus();
+    }
+  }, [replyingTo]);
 
   useEffect(() => {
     async function fetchComments() {
@@ -117,7 +124,7 @@ export default function CommentsSection({ identifier }) {
           {replyingTo === comment.id && (
             <form onSubmit={(e) => handleSubmit(e, comment.id)} className="mt-2 space-y-2">
               <textarea
-                autoFocus
+                ref={replyRef}
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 className="w-full border rounded p-2 text-sm"
