@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import MangaCard from "../../../../components/MangaCard";
 import { supabase } from "../../../../../lib/supabaseClient";
 
-export default function TopMangaList() {
+export default function TopMangaList({ genre = "" }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,11 +14,14 @@ export default function TopMangaList() {
   useEffect(() => {
     async function fetchTopMangas() {
       try {
-        const { data, error } = await supabase
-          .from("mangas")
-          .select("*")
-          .order("mal_id", { ascending: true })
-          .limit(30);
+        setLoading(true);
+        let query = supabase.from("mangas").select("*").limit(30);
+        if (genre) {
+          query = query.or(
+            `genre1.eq.${genre},genre2.eq.${genre},genre3.eq.${genre}`
+          );
+        }
+        const { data, error } = await query.order("mal_id", { ascending: true });
         if (error) throw error;
 
         const formatted = data.map((m) => ({
@@ -30,6 +33,7 @@ export default function TopMangaList() {
 
         setItems(formatted);
         setVisibleMangas(formatted.slice(0, cardsPerPage));
+        setPage(1);
       } catch (err) {
         console.error("TopMangaList:", err);
         setError(err.message);
@@ -38,7 +42,7 @@ export default function TopMangaList() {
       }
     }
     fetchTopMangas();
-  }, []);
+  }, [genre]);
 
   const handleVerMais = () => {
     const nextPage = page + 1;
