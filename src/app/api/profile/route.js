@@ -43,7 +43,6 @@ export async function GET() {
     }
     data = inserted;
   }
-
   return NextResponse.json(data || {});
 }
 
