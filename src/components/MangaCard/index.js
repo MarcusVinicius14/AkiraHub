@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -23,6 +23,42 @@ const MangaCard = ({ manga }) => {
   const publishedFrom = manga.published?.from;
   const year = publishedFrom ? new Date(publishedFrom).getFullYear() : null;
   const score = manga.score;
+
+  useEffect(() => {
+    async function checkFavorite() {
+      try {
+        const res = await fetch(`/api/favorites?work_type=manga&work_id=${id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setIsFavorite(data.favorited);
+        }
+      } catch (err) {
+        console.error('Erro ao verificar favorito', err);
+      }
+    }
+    if (id) checkFavorite();
+  }, [id]);
+
+  async function toggleFavorite() {
+    try {
+      if (isFavorite) {
+        await fetch('/api/favorites', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ work_type: 'manga', work_id: id }),
+        });
+      } else {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ work_type: 'manga', work_id: id }),
+        });
+      }
+      setIsFavorite(!isFavorite);
+    } catch (err) {
+      console.error('Erro ao atualizar favorito', err);
+    }
+  }
 
   return (
     <div className=" bg-white rounded-lg shadow-md overflow-hidden flex hover:bg-gray-100 active:bg-gray-200 cursor-pointer justify-between items-center">
@@ -84,7 +120,7 @@ const MangaCard = ({ manga }) => {
               ? "text-red-500 hover:text-red-700 hover:bg-red-100"
               : "text-gray-600 hover:bg-gray-300 active:bg-gray-400 cursor-pointer"
           }`}
-          onClick={() => setIsFavorite(!isFavorite)}
+          onClick={toggleFavorite}
         >
           <svg
             className="w-5 h-5 mr-1"
