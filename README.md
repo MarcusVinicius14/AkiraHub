@@ -34,3 +34,43 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Configuration
+
+Create a `.env.local` based on `.env.example` and fill in your Supabase credentials. You will need these tables:
+
+```sql
+create table profiles (
+  id serial primary key,
+  username text,
+  avatar_url text,
+  email text,
+  password text,
+  favorite_anime_id integer references animes(mal_id),
+  favorite_manga_id integer references mangas(mal_id)
+);
+
+create table comments (
+  id serial primary key,
+  identifier text not null,
+  profile_id integer references profiles(id),
+  username text,
+  avatar_url text,
+  content text not null,
+  created_at timestamptz default now()
+);
+
+create table favorites (
+  id serial primary key,
+  profile_id integer references profiles(id),
+  work_type text check (work_type in ('anime','manga')),
+  work_id integer,
+  created_at timestamptz default now(),
+  unique (profile_id, work_type, work_id)
+);
+```
+
+The `CommentsSection` component stores the user id when posting a message and, when reading, joins the `profiles` table to show the avatar beside each comment.
+You can authenticate with Supabase using the `/login` page before editing your profile.
+
+The `/history` page lists the last episodes and chapters that you commented on. It reads your recent entries in the `comments` table and links back to the respective anime episode or manga chapter.
