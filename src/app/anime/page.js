@@ -8,6 +8,7 @@ import AnimeCard from "../../components/AnimeCard";
 import { supabase } from "../../../lib/supabaseClient";
 import AnimeList from "@/components/AnimeList";
 
+
 export default function AnimePage() {
   const [selectedGenre, setSelectedGenre] = useState("");
   return (
@@ -31,15 +32,6 @@ export default function AnimePage() {
             </div>
             <div>
               <h2 className="text-xl font-bold mb-2">Top Animes</h2>
-              {/* <div className="grid grid-cols-2 gap-4">
-                {topAnimes.map((anime) => (
-                  <LatestAdditionCard
-                    key={anime.mal_id}
-                    item={anime}
-                    type="anime"
-                  />
-                ))}
-              </div> */}
               <AnimeList genre={selectedGenre} />
             </div>
           </div>
