@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -24,6 +24,42 @@ export default function AnimeCard({ anime }) {
   const year = anime?.year || "—";
   const score = anime?.score != null ? anime.score : "—";
   const imageUrl = anime?.large_image_url;
+
+  useEffect(() => {
+    async function checkFavorite() {
+      try {
+        const res = await fetch(`/api/favorites?work_type=anime&work_id=${id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setIsFavorite(data.favorited);
+        }
+      } catch (err) {
+        console.error('Erro ao verificar favorito', err);
+      }
+    }
+    if (id) checkFavorite();
+  }, [id]);
+
+  async function toggleFavorite() {
+    try {
+      if (isFavorite) {
+        await fetch('/api/favorites', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ work_type: 'anime', work_id: id }),
+        });
+      } else {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ work_type: 'anime', work_id: id }),
+        });
+      }
+      setIsFavorite(!isFavorite);
+    } catch (err) {
+      console.error('Erro ao atualizar favorito', err);
+    }
+  }
 
   return (
     <div
@@ -90,7 +126,7 @@ export default function AnimeCard({ anime }) {
               ? "text-red-500 hover:text-red-700 hover:bg-red-100"
               : "text-gray-600 hover:bg-gray-300 active:bg-gray-400 cursor-pointer"
           }`}
-          onClick={() => setIsFavorite(!isFavorite)}
+          onClick={toggleFavorite}
         >
           <svg
             className="w-4 h-4 mr-1"
