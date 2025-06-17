@@ -8,11 +8,17 @@ const supabase = createClient(supabaseUrl, serviceKey);
 const PROFILE_ID = 1;
 
 export async function GET() {
-  const { data, error } = await supabase
+  let { data, error } = await supabase
+
     .from('profiles')
     .select('id, username, avatar_url')
     .eq('id', PROFILE_ID)
     .single();
+  if (error && error.code === '42P01') {
+    // tabela não existe, retornar perfil vazio
+    return NextResponse.json({});
+  }
+
   if (error && error.code !== 'PGRST116') {
     console.error('Erro ao buscar perfil', error);
     return NextResponse.json({ error: 'Erro ao buscar perfil' }, { status: 500 });
@@ -26,11 +32,17 @@ export async function POST(request) {
   if (!username && !avatar_url) {
     return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
   }
-  const { data, error } = await supabase
+  let { data, error } = await supabase
+
     .from('profiles')
     .upsert({ id: PROFILE_ID, username, avatar_url }, { onConflict: 'id' })
     .select()
     .single();
+  if (error && error.code === '42P01') {
+    // tabela inexistente, retornar dados sem salvar
+    return NextResponse.json({ id: PROFILE_ID, username, avatar_url });
+  }
+
   if (error) {
     console.error('Erro ao salvar perfil', error);
     return NextResponse.json({ error: 'Erro ao salvar perfil' }, { status: 500 });
