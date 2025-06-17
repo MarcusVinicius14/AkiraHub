@@ -173,6 +173,7 @@ export default function MangaDetails() {
           </div>
         )}
       </div>
+
       <div className="bg-white shadow rounded-lg p-4 mx-4">
         <h2 className="font-bold text-lg mb-4">Comentários</h2>
         <CommentsSection identifier={`manga-${userId}`} />

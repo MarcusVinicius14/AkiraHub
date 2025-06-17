@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "../../../lib/supabaseClient";
+
 
 export default function CommentsSection({ identifier }) {
   const [comments, setComments] = useState([]);
@@ -10,16 +10,14 @@ export default function CommentsSection({ identifier }) {
   useEffect(() => {
     async function fetchComments() {
       try {
-        const { data, error } = await supabase
-          .from("comments")
-          .select("id, username, content, created_at")
-          .eq("identifier", identifier)
-          .order("created_at", { ascending: false });
-        if (error) {
-          console.error("Erro ao carregar comentários", error);
-        } else {
-          setComments(data || []);
+        const res = await fetch(`/api/comments?identifier=${identifier}`);
+        if (!res.ok) {
+          const err = await res.json();
+          console.error("Erro ao carregar comentários", err);
+          return;
         }
+        const data = await res.json();
+        setComments(data || []);
       } catch (err) {
         console.error("Erro inesperado ao carregar comentários", err);
 
@@ -32,21 +30,21 @@ export default function CommentsSection({ identifier }) {
     e.preventDefault();
     if (!content.trim()) return;
     try {
-      const { data, error } = await supabase
-        .from("comments")
-        .insert({ identifier, username: username || null, content })
-        .select()
-        .single();
-      if (error) {
-        console.error("Erro ao enviar comentário", error);
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier, username: username || null, content }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        console.error('Erro ao enviar comentário', err);
         return;
       }
-      if (data) {
-        setComments([data, ...comments]);
-      }
-      setContent("");
+      const data = await res.json();
+      setComments([data, ...comments]);
+      setContent('');
     } catch (err) {
-      console.error("Erro inesperado ao enviar comentário", err);
+      console.error('Erro inesperado ao enviar comentário', err);
     }
 
   }
