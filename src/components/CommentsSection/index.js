@@ -9,15 +9,20 @@ export default function CommentsSection({ identifier }) {
 
   useEffect(() => {
     async function fetchComments() {
-      const { data, error } = await supabase
-        .from("comments")
-        .select("id, username, content, created_at")
-        .eq("identifier", identifier)
-        .order("created_at", { ascending: false });
-      if (!error) {
-        setComments(data || []);
-      } else {
-        console.error("Erro ao carregar comentários", error);
+      try {
+        const { data, error } = await supabase
+          .from("comments")
+          .select("id, username, content, created_at")
+          .eq("identifier", identifier)
+          .order("created_at", { ascending: false });
+        if (error) {
+          console.error("Erro ao carregar comentários", error);
+        } else {
+          setComments(data || []);
+        }
+      } catch (err) {
+        console.error("Erro inesperado ao carregar comentários", err);
+
       }
     }
     fetchComments();
@@ -26,21 +31,24 @@ export default function CommentsSection({ identifier }) {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!content.trim()) return;
-    const { data, error } = await supabase
-      .from("comments")
-      .insert({ identifier, username: username || null, content })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Erro ao enviar comentário", error);
-      return;
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .insert({ identifier, username: username || null, content })
+        .select()
+        .single();
+      if (error) {
+        console.error("Erro ao enviar comentário", error);
+        return;
+      }
+      if (data) {
+        setComments([data, ...comments]);
+      }
+      setContent("");
+    } catch (err) {
+      console.error("Erro inesperado ao enviar comentário", err);
     }
-    if (data) {
-      setComments([data, ...comments]);
-    }
 
-    setContent("");
   }
 
   return (
