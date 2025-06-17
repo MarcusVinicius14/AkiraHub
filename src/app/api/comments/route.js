@@ -15,6 +15,7 @@ export async function GET(request) {
   const { data, error } = await supabase
     .from('comments')
     .select('id, username, avatar_url, content, created_at')
+
     .eq('identifier', identifier)
     .order('created_at', { ascending: false });
   if (error) {
@@ -27,12 +28,14 @@ export async function GET(request) {
 export async function POST(request) {
   const body = await request.json();
   const { identifier, username, avatar_url, content } = body;
+
   if (!identifier || !content) {
     return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
   }
   const { data, error } = await supabase
     .from('comments')
     .insert({ identifier, username, avatar_url, content })
+
     .select()
     .single();
   if (error) {
