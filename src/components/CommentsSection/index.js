@@ -6,7 +6,7 @@ export default function CommentsSection({ identifier }) {
   const [content, setContent] = useState("");
   const [username, setUsername] = useState("");
   const [profile, setProfile] = useState(null);
-  const [replyContent, setReplyContent] = useState({});
+  const [replyText, setReplyText] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function CommentsSection({ identifier }) {
 
   async function handleSubmit(e, parentId = null) {
     e.preventDefault();
-    const text = parentId ? replyContent[parentId] : content;
+    const text = parentId ? replyText : content;
     if (!text || !text.trim()) return;
     try {
       const res = await fetch('/api/comments', {
@@ -78,7 +78,7 @@ export default function CommentsSection({ identifier }) {
       const data = await res.json();
       setComments([data, ...comments]);
       if (parentId) {
-        setReplyContent({ ...replyContent, [parentId]: '' });
+        setReplyText('');
         setReplyingTo(null);
       } else {
         setContent('');
@@ -106,7 +106,10 @@ export default function CommentsSection({ identifier }) {
           </p>
           <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
           <button
-            onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+            onClick={() => {
+              setReplyingTo(replyingTo === comment.id ? null : comment.id);
+              setReplyText('');
+            }}
             className="text-xs text-blue-600 mt-1 cursor-pointer hover:underline"
           >
             Responder
@@ -115,10 +118,8 @@ export default function CommentsSection({ identifier }) {
             <form onSubmit={(e) => handleSubmit(e, comment.id)} className="mt-2 space-y-2">
               <textarea
                 autoFocus
-                value={replyContent[comment.id] || ''}
-                onChange={(e) =>
-                  setReplyContent((prev) => ({ ...prev, [comment.id]: e.target.value }))
-                }
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
                 className="w-full border rounded p-2 text-sm"
                 rows={2}
               />
@@ -126,7 +127,7 @@ export default function CommentsSection({ identifier }) {
                 <button
                   type="submit"
                   className="bg-blue-500 text-white px-3 py-1 rounded text-xs disabled:opacity-50 cursor-pointer hover:bg-blue-600"
-                  disabled={!replyContent[comment.id] || !replyContent[comment.id].trim()}
+                  disabled={!replyText.trim()}
                 >
                   Enviar
                 </button>

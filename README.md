@@ -63,6 +63,7 @@ create table comments (
 
 -- caso já exista a tabela sem essa coluna
 -- alter table comments add column parent_id integer references comments(id);
+
 create table favorites (
   id serial primary key,
   profile_id integer references profiles(id),
