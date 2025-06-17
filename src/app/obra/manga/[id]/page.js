@@ -4,7 +4,8 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { supabase } from "../../../../../lib/supabaseClient";
 import { MessageSquare, Star, Clock } from "lucide-react";
-import DisqusComments from "@/components/DisqusComments";
+import CommentsSection from "@/components/CommentsSection";
+
 import TopNavbar from "@/components/TopNavbar";
 import Header from "@/components/Header";
 
@@ -167,7 +168,8 @@ export default function MangaDetails() {
 
       <div className="bg-white shadow rounded-lg p-4 mx-4">
         <h2 className="font-bold text-lg mb-4">Comentários</h2>
-        <DisqusComments identifier={`manga-${userId}`} title={manga.title} />
+        <CommentsSection identifier={`manga-${userId}`} />
+
       </div>
     </div>
   );
