@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../../../../lib/supabaseClient";
 
-export default function AnimeFiltersRow() {
+export default function AnimeFiltersRow({ onGenreSelect }) {
   const [openGenre, setOpenGenre] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState("");
   const [openStatus, setOpenStatus] = useState(false);
   const [openSeason, setOpenSeason] = useState(false);
 
@@ -18,6 +19,12 @@ export default function AnimeFiltersRow() {
   const [errorSeasons, setErrorSeasons] = useState(null);
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedSeason, setSelectedSeason] = useState("");
+
+  function handleGenreClick(name) {
+    setSelectedGenre(name);
+    if (onGenreSelect) onGenreSelect(name);
+    setOpenGenre(false);
+  }
 
   useEffect(() => {
     async function fetchGenres() {
@@ -77,7 +84,8 @@ export default function AnimeFiltersRow() {
                   {genres.map((genre) => (
                     <button
                       key={genre.mal_id}
-                      className="px-3 py-1 border rounded-full text-sm hover:bg-blue-500 hover:text-white transition"
+                      onClick={() => handleGenreClick(genre.name)}
+                      className={`px-3 py-1 border rounded-full text-sm transition cursor-pointer hover:bg-blue-500 hover:text-white ${selectedGenre === genre.name ? 'bg-blue-500 text-white' : ''}`}
                     >
                       {genre.name} ({genre.count})
                     </button>
