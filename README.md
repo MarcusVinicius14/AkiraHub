@@ -35,6 +35,3 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-## Configuration
-
-Create a `.env.local` based on `.env.example` and fill in your Supabase credentials. You will also need a `comments` table with columns `id`, `identifier`, `username`, `content` and `created_at` to store user comments.

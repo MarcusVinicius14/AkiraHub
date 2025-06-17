@@ -13,6 +13,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import CommentsSection from "@/components/CommentsSection";
+
 import TopNavbar from "@/components/TopNavbar";
 import Header from "@/components/Header";
 import Link from "next/link";
@@ -288,7 +289,9 @@ export default function EpisodeDetails() {
       {/* Comentários */}
       <div className="bg-white shadow rounded-lg p-4 mx-4">
         <h2 className="font-bold text-lg mb-4">Comentários do Episódio</h2>
+
         <CommentsSection identifier={`anime-${animeId}-ep-${episodeNumber}`} />
+
       </div>
 
     </div>
