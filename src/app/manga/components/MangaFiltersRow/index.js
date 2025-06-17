@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../../../../lib/supabaseClient";
 
-export default function MangaFiltersRow() {
+export default function MangaFiltersRow({ onGenreSelect }) {
   const [openGenre, setOpenGenre] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState("");
   const [openStatus, setOpenStatus] = useState(false);
 
   const [genres, setGenres] = useState([]);
@@ -12,6 +13,12 @@ export default function MangaFiltersRow() {
 
   // Status fixos
   const statusOptions = ["Lançando", "Hiato", "Finalizado"];
+
+  function handleGenreClick(name) {
+    setSelectedGenre(name);
+    if (onGenreSelect) onGenreSelect(name);
+    setOpenGenre(false);
+  }
 
   useEffect(() => {
     async function fetchGenres() {
@@ -52,7 +59,8 @@ export default function MangaFiltersRow() {
                   {genres.map((g) => (
                     <button
                       key={g.mal_id}
-                      className="px-3 py-1 border rounded-full text-sm hover:bg-blue-500 hover:text-white transition"
+                      onClick={() => handleGenreClick(g.name)}
+                      className={`px-3 py-1 border rounded-full text-sm transition cursor-pointer hover:bg-blue-500 hover:text-white ${selectedGenre === g.name ? 'bg-blue-500 text-white' : ''}`}
                     >
                       {g.name} ({g.count})
                     </button>
