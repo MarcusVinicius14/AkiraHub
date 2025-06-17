@@ -26,16 +26,20 @@ export default function CommentsSection({ identifier }) {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!content.trim()) return;
-    const { data, error } = await supabase.from("comments").insert({
-      identifier,
-      username: username || null,
-      content,
-    });
+    const { data, error } = await supabase
+      .from("comments")
+      .insert({ identifier, username: username || null, content })
+      .select()
+      .single();
+
     if (error) {
       console.error("Erro ao enviar comentário", error);
       return;
     }
-    setComments([{ ...data[0] }, ...comments]);
+    if (data) {
+      setComments([data, ...comments]);
+    }
+
     setContent("");
   }
 

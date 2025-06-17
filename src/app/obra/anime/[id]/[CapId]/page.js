@@ -290,6 +290,7 @@ export default function EpisodeDetails() {
         <h2 className="font-bold text-lg mb-4">Comentários do Episódio</h2>
         <CommentsSection identifier={`anime-${animeId}-ep-${episodeNumber}`} />
       </div>
+
     </div>
   );
 }
