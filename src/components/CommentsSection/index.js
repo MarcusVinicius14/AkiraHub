@@ -31,6 +31,7 @@ export default function CommentsSection({ identifier }) {
       .insert({ identifier, username: username || null, content })
       .select()
       .single();
+
     if (error) {
       console.error("Erro ao enviar comentário", error);
       return;
@@ -38,6 +39,7 @@ export default function CommentsSection({ identifier }) {
     if (data) {
       setComments([data, ...comments]);
     }
+
     setContent("");
   }
 
