@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import TopNavbar from "../../components/TopNavbar";
 import Header from "../../components/Header";
 import MangaFiltersRow from "./components/MangaFiltersRow";
@@ -8,18 +8,20 @@ import MangaRecommendations from "./components/MangaRecommendations";
 import RandomManga from "./components/RandomManga";
 
 export default function MangaPage() {
+  const [selectedGenre, setSelectedGenre] = useState("");
+
   return (
     <div className="min-h-screen bg-gray-100">
       <TopNavbar />
       <Header />
 
       <main className="w-full px-2 lg:px-10 pt-4">
-        <MangaFiltersRow />
+        <MangaFiltersRow onGenreSelect={setSelectedGenre} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-4">
           <div className="space-y-4 overflow-auto">
             <h2 className="text-xl font-bold">Top Mangás</h2>
-            <TopMangaList />
+            <TopMangaList genre={selectedGenre} />
           </div>
 
           <div className="space-y-4 overflow-auto">

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import AnimeCard from "../AnimeCard";
 import { supabase } from "../../../lib/supabaseClient";
 
-export default function AnimeList() {
+export default function AnimeList({ genre = "" }) {
   const [animes, setAnimes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,11 +14,13 @@ export default function AnimeList() {
   useEffect(() => {
     async function fetchAnimes() {
       try {
-        const { data, error } = await supabase
-          .from("top_anime")
-          .select("*")
-          .order("score", { descending: true })
-          .limit(30);
+        let query = supabase.from("animes").select("*").limit(30);
+        if (genre) {
+          query = query.or(
+            `genre1.eq.${genre},genre2.eq.${genre},genre3.eq.${genre}`
+          );
+        }
+        const { data, error } = await query.order("score", { descending: true });
         if (error) throw error;
 
         if (!data || data.length === 0) {
@@ -45,6 +47,7 @@ export default function AnimeList() {
 
         setAnimes(formatted);
         setVisibleAnimes(formatted.slice(0, cardsPerPage));
+        setPage(1);
       } catch (err) {
         console.error("AnimeList:", err);
         setError(err.message);
@@ -53,7 +56,7 @@ export default function AnimeList() {
       }
     }
     fetchAnimes();
-  }, []);
+  }, [genre]);
 
   const handleVerMais = () => {
     const nextPage = page + 1;
@@ -67,11 +70,7 @@ export default function AnimeList() {
   if (loading) return <div>Carregando animes...</div>;
   if (error) return <div className="text-red-500">Erro: {error}</div>;
   if (animes.length === 0)
-    return (
-      <div>
-        Nenhum anime encontrado em <code>top_anime</code>.
-      </div>
-    );
+    return <div>Nenhum anime encontrado.</div>;
 
   return (
     <div>
