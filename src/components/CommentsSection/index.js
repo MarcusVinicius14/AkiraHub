@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
 
-
-
 export default function CommentsSection({ identifier }) {
   const [comments, setComments] = useState([]);
   const [content, setContent] = useState("");
@@ -109,7 +107,7 @@ export default function CommentsSection({ identifier }) {
           <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
           <button
             onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
-            className="text-xs text-blue-600 mt-1"
+            className="text-xs text-blue-600 mt-1 cursor-pointer hover:underline"
           >
             Responder
           </button>
@@ -120,13 +118,14 @@ export default function CommentsSection({ identifier }) {
                 onChange={(e) =>
                   setReplyContent({ ...replyContent, [comment.id]: e.target.value })
                 }
+                onKeyDown={(e) => e.stopPropagation()}
                 className="w-full border rounded p-2 text-sm"
                 rows={2}
               />
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-3 py-1 rounded text-xs disabled:opacity-50"
+                  className="bg-blue-500 text-white px-3 py-1 rounded text-xs disabled:opacity-50 cursor-pointer hover:bg-blue-600"
                   disabled={!replyContent[comment.id] || !replyContent[comment.id].trim()}
                 >
                   Enviar
@@ -173,6 +172,7 @@ export default function CommentsSection({ identifier }) {
               placeholder="Escreva um comentário"
               value={content}
               onChange={(e) => setContent(e.target.value)}
+              onKeyDown={(e) => e.stopPropagation()}
               className="w-full border rounded p-2 text-sm"
               rows={3}
             />
@@ -181,7 +181,7 @@ export default function CommentsSection({ identifier }) {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+            className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50 cursor-pointer hover:bg-blue-600"
             disabled={!content.trim()}
           >
             Comentar

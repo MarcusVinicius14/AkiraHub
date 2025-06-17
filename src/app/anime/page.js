@@ -9,13 +9,14 @@ import { supabase } from "../../../lib/supabaseClient";
 import AnimeList from "@/components/AnimeList";
 
 export default function AnimePage() {
+  const [selectedGenre, setSelectedGenre] = useState("");
   return (
     <div className="min-h-screen bg-gray-100">
       <TopNavbar />
       <Header />
 
       <main className="container mx-auto px-4 pt-4">
-        <AnimeFiltersRow />
+        <AnimeFiltersRow onGenreSelect={setSelectedGenre} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
           <div className="space-y-4 overflow-auto">
@@ -39,7 +40,7 @@ export default function AnimePage() {
                   />
                 ))}
               </div> */}
-              <AnimeList />
+              <AnimeList genre={selectedGenre} />
             </div>
           </div>
 
