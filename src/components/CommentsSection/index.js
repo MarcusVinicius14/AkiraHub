@@ -54,7 +54,8 @@ export default function CommentsSection({ identifier }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           identifier,
-          username: username || null,
+          profile_id: profile?.id || null,
+          username: username || profile?.username || null,
           avatar_url: profile?.avatar_url || null,
           content,
         }),

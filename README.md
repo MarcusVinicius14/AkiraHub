@@ -37,5 +37,25 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Configuration
 
-Create a `.env.local` based on `.env.example` and fill in your Supabase credentials. You will need a `comments` table with columns `id`, `identifier`, `username`, `avatar_url`, `content` and `created_at` to store user comments. A `profiles` table with columns `id`, `username` and `avatar_url` can be used to save your profile. Comments appear at the end of each obra page using the `CommentsSection` component and pull your saved profile information.
+Create a `.env.local` based on `.env.example` and fill in your Supabase credentials. You will need these tables:
+
+```sql
+create table profiles (
+  id serial primary key,
+  username text,
+  avatar_url text
+);
+
+create table comments (
+  id serial primary key,
+  identifier text not null,
+  profile_id integer references profiles(id),
+  username text,
+  avatar_url text,
+  content text not null,
+  created_at timestamptz default now()
+);
+```
+
+The `CommentsSection` component stores the user id when posting a message and, when reading, joins the `profiles` table to show the avatar beside each comment.
 

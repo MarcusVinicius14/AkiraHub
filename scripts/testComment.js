@@ -15,8 +15,9 @@ async function main() {
   const identifier = `test-${Date.now()}`;
   const { data, error } = await supabase
     .from('comments')
-    .insert({ identifier, username: 'Test Runner', content: 'Hello from test' })
-    .select()
+    .insert({ identifier, profile_id: 1, username: 'Test Runner', content: 'Hello from test' })
+    .select('id, content, created_at, profiles(username, avatar_url)')
+
     .single();
 
   if (error) {
@@ -28,7 +29,8 @@ async function main() {
 
   const { data: fetched, error: fetchError } = await supabase
     .from('comments')
-    .select('id, identifier, username, content, created_at')
+    .select('id, content, created_at, profiles(username, avatar_url)')
+
     .eq('id', data.id)
     .single();
 

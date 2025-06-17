@@ -14,14 +14,16 @@ export async function GET(request) {
   }
   let { data, error } = await supabase
     .from('comments')
-    .select('id, username, avatar_url, content, created_at')
+    .select(
+      'id, content, created_at, username, avatar_url, profiles(username, avatar_url)'
+    )
     .eq('identifier', identifier)
     .order('created_at', { ascending: false });
   if (error && error.code === '42703') {
-    // coluna avatar_url não existe, buscar sem ela
+    // tabela ou coluna ausente, tentar sem o join
     ({ data, error } = await supabase
       .from('comments')
-      .select('id, username, content, created_at')
+      .select('id, username, avatar_url, content, created_at')
       .eq('identifier', identifier)
       .order('created_at', { ascending: false }));
   }
@@ -30,25 +32,36 @@ export async function GET(request) {
     console.error('Erro ao buscar comentários', error);
     return NextResponse.json({ error: 'Erro ao buscar comentários' }, { status: 500 });
   }
-  return NextResponse.json(data);
+
+  const formatted = (data || []).map((c) => ({
+    id: c.id,
+    content: c.content,
+    created_at: c.created_at,
+    username: c.profiles?.username || c.username,
+    avatar_url: c.profiles?.avatar_url || c.avatar_url,
+  }));
+
+  return NextResponse.json(formatted);
+
 }
 
 export async function POST(request) {
   const body = await request.json();
-  const { identifier, username, avatar_url, content } = body;
+  const { identifier, content, profile_id, username, avatar_url } = body;
+
   if (!identifier || !content) {
     return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
   }
   let { data, error } = await supabase
     .from('comments')
-    .insert({ identifier, username, avatar_url, content })
-    .select()
+    .insert({ identifier, profile_id, username, avatar_url, content })
+    .select('id, content, created_at, username, avatar_url, profiles(username, avatar_url)')
     .single();
   if (error && error.code === 'PGRST204') {
-    // coluna avatar_url pode não existir
+    // coluna profile_id ou avatar_url pode não existir
     ({ data, error } = await supabase
       .from('comments')
-      .insert({ identifier, username, content })
+      .insert({ identifier, username, avatar_url, content })
       .select()
       .single());
   }
@@ -57,5 +70,14 @@ export async function POST(request) {
     console.error('Erro ao inserir comentário', error);
     return NextResponse.json({ error: 'Erro ao inserir comentário' }, { status: 500 });
   }
-  return NextResponse.json(data);
+  const result = {
+    id: data.id,
+    content: data.content,
+    created_at: data.created_at,
+    username: data.profiles?.username || data.username,
+    avatar_url: data.profiles?.avatar_url || data.avatar_url,
+  };
+
+  return NextResponse.json(result);
+
 }
