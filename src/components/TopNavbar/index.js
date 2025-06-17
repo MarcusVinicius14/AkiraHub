@@ -45,6 +45,12 @@ const TopNavbar = () => {
           Favoritos
         </Link>
         <Link
+          href={"/history"}
+          className="px-8 py-2 rounded-md font-medium hover:bg-gray-100 active:bg-gray-200 cursor-pointer"
+        >
+          Histórico
+        </Link>
+        <Link
           href={"/about"}
           className="px-8 py-2 rounded-md font-medium hover:bg-gray-100 active:bg-gray-200 cursor-pointer"
         >
