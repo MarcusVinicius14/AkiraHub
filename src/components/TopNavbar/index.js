@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import SideBar from "../SideBar";
 
 const TopNavbar = () => {
   const [sideBarOpen, setSideBarOpen] = useState(false);
+  const [profile, setProfile] = useState(null);
 
   const toggleSideBar = () => {
     setSideBarOpen(!sideBarOpen);
@@ -14,6 +14,21 @@ const TopNavbar = () => {
   const closeSideBar = () => {
     setSideBarOpen(false);
   };
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await fetch('/api/profile');
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar perfil', err);
+      }
+    }
+    fetchProfile();
+  }, []);
 
   return (
     <nav className="bg-white py-3 px-6 flex items-center justify-between  shadow-sm">
@@ -38,6 +53,24 @@ const TopNavbar = () => {
         >
           Manga
         </Link>
+        <Link
+          href={"/favorites"}
+          className="px-8 py-2 rounded-md font-medium hover:bg-gray-100 active:bg-gray-200 cursor-pointer"
+        >
+          Favoritos
+        </Link>
+        <Link
+          href={"/history"}
+          className="px-8 py-2 rounded-md font-medium hover:bg-gray-100 active:bg-gray-200 cursor-pointer"
+        >
+          Histórico
+        </Link>
+        <Link
+          href={"/about"}
+          className="px-8 py-2 rounded-md font-medium hover:bg-gray-100 active:bg-gray-200 cursor-pointer"
+        >
+          Sobre
+        </Link>
       </div>
 
       <div className="flex items-center">
@@ -61,15 +94,18 @@ const TopNavbar = () => {
           onClick={toggleSideBar}
           className="flex items-center hover:bg-gray-100 active:bg-gray-200 cursor-pointer rounded-md"
         >
-          <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden ">
+          <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
             <Image
-              src="/profileimage.svg"
+              src={profile?.avatar_url || "/profileimage.svg"}
               alt="User profile"
               width={32}
               height={32}
               className="object-cover"
             />
           </div>
+          {profile?.username && (
+            <span className="ml-2 text-sm font-medium">{profile.username}</span>
+          )}
           <svg
             className="w-4 h-4 ml-1"
             fill="none"
