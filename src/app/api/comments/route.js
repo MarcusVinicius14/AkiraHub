@@ -25,6 +25,7 @@ export async function GET(request) {
       .eq('identifier', identifier)
       .order('created_at', { ascending: false }));
   }
+
   if (error) {
     console.error('Erro ao buscar comentários', error);
     return NextResponse.json({ error: 'Erro ao buscar comentários' }, { status: 500 });
@@ -51,6 +52,7 @@ export async function POST(request) {
       .select()
       .single());
   }
+
   if (error) {
     console.error('Erro ao inserir comentário', error);
     return NextResponse.json({ error: 'Erro ao inserir comentário' }, { status: 500 });
