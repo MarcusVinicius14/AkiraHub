@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 
 export default function SideBar({ isOpen, onClose }) {
+  const [profile, setProfile] = useState(null);
+
   // Previne rolagem quando o menu está aberto
   useEffect(() => {
     if (isOpen) {
@@ -16,6 +18,21 @@ export default function SideBar({ isOpen, onClose }) {
       document.body.style.overflow = "auto";
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await fetch('/api/profile');
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar perfil', err);
+      }
+    }
+    fetchProfile();
+  }, []);
 
   return (
     <>
@@ -33,14 +50,16 @@ export default function SideBar({ isOpen, onClose }) {
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 rounded-full overflow-hidden">
                 <Image
-                  src="/profileimage.svg"
+                  src={profile?.avatar_url || "/profileimage.svg"}
                   alt="Profile"
                   width={48}
                   height={48}
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="text-sm font-medium">Username</div>
+              <div className="text-sm font-medium">
+                {profile?.username || "Username"}
+              </div>
             </div>
             <button
               onClick={onClose}

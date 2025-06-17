@@ -72,8 +72,8 @@ create table favorites (
 
 The `CommentsSection` component stores the user id when posting a message and, when reading, joins the `profiles` table to show the avatar beside each comment.
 You can authenticate with Supabase using the `/login` page before editing your profile.
-<<<<<<< sckebu-codex/implementar-api-do-disqus-para-comentários
 
 The `/history` page lists the last episodes and chapters that you commented on. It reads your recent entries in the `comments` table and links back to the respective anime episode or manga chapter.
-=======
->>>>>>> main
+
+The `/history` page lists the last episodes and chapters that you commented on. It reads your recent entries in the `comments` table and links back to the respective anime episode or manga chapter.
+

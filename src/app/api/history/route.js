@@ -25,7 +25,7 @@ async function findAnime(id) {
 export async function GET() {
   let { data, error } = await supabase
     .from('comments')
-    .select('identifier, created_at')
+    .select('identifier, content, created_at')
     .eq('profile_id', PROFILE_ID)
     .order('created_at', { ascending: false })
     .limit(50);
@@ -60,6 +60,7 @@ export async function GET() {
           image: anime.large_image_url,
           subtitle: `Episódio ${ep}`,
           created_at: c.created_at,
+          comment: c.content,
         });
       }
     } else if (parts[0] === 'manga' && parts[2] === 'cap') {
@@ -78,6 +79,7 @@ export async function GET() {
           image: manga.large_image_url,
           subtitle: `Capítulo ${cap}`,
           created_at: c.created_at,
+          comment: c.content,
         });
       }
     }
