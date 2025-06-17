@@ -8,7 +8,6 @@ export default function CommentsSection({ identifier }) {
   const [username, setUsername] = useState("");
   const [profile, setProfile] = useState(null);
 
-
   useEffect(() => {
     async function fetchComments() {
       try {
@@ -22,7 +21,6 @@ export default function CommentsSection({ identifier }) {
         setComments(data || []);
       } catch (err) {
         console.error("Erro inesperado ao carregar comentários", err);
-
       }
     }
     fetchComments();
@@ -44,7 +42,6 @@ export default function CommentsSection({ identifier }) {
     fetchProfile();
   }, []);
 
-
   async function handleSubmit(e) {
     e.preventDefault();
     if (!content.trim()) return;
@@ -59,7 +56,6 @@ export default function CommentsSection({ identifier }) {
           avatar_url: profile?.avatar_url || null,
           content,
         }),
-
       });
       if (!res.ok) {
         const err = await res.json();
@@ -72,7 +68,6 @@ export default function CommentsSection({ identifier }) {
     } catch (err) {
       console.error('Erro inesperado ao enviar comentário', err);
     }
-
   }
 
   return (
@@ -98,7 +93,6 @@ export default function CommentsSection({ identifier }) {
                 className="w-full border rounded p-2 text-sm"
               />
             )}
-
             <textarea
               placeholder="Escreva um comentário"
               value={content}
@@ -133,7 +127,6 @@ export default function CommentsSection({ identifier }) {
                 />
               )}
             </div>
-
             <div className="flex-1">
               <p className="font-semibold text-sm">
                 {comment.username || "Anônimo"}

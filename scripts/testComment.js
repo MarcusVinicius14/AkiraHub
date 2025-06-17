@@ -17,7 +17,6 @@ async function main() {
     .from('comments')
     .insert({ identifier, profile_id: 1, username: 'Test Runner', content: 'Hello from test' })
     .select('id, content, created_at, profiles(username, avatar_url)')
-
     .single();
 
   if (error) {
@@ -30,7 +29,6 @@ async function main() {
   const { data: fetched, error: fetchError } = await supabase
     .from('comments')
     .select('id, content, created_at, profiles(username, avatar_url)')
-
     .eq('id', data.id)
     .single();
 
