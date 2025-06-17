@@ -44,6 +44,7 @@ export default function CommentsSection({ identifier }) {
     });
     return map;
   }, [comments]);
+
   useEffect(() => {
     async function fetchProfile() {
       try {
