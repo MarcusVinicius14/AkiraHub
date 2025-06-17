@@ -114,11 +114,11 @@ export default function CommentsSection({ identifier }) {
           {replyingTo === comment.id && (
             <form onSubmit={(e) => handleSubmit(e, comment.id)} className="mt-2 space-y-2">
               <textarea
+                autoFocus
                 value={replyContent[comment.id] || ''}
                 onChange={(e) =>
-                  setReplyContent({ ...replyContent, [comment.id]: e.target.value })
+                  setReplyContent((prev) => ({ ...prev, [comment.id]: e.target.value }))
                 }
-                onKeyDown={(e) => e.stopPropagation()}
                 className="w-full border rounded p-2 text-sm"
                 rows={2}
               />
@@ -172,7 +172,6 @@ export default function CommentsSection({ identifier }) {
               placeholder="Escreva um comentário"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              onKeyDown={(e) => e.stopPropagation()}
               className="w-full border rounded p-2 text-sm"
               rows={3}
             />
