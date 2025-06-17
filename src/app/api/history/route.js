@@ -23,12 +23,24 @@ async function findAnime(id) {
 }
 
 export async function GET() {
-  let { data, error } = await supabase
+  let query = supabase
     .from('comments')
-    .select('identifier, content, created_at')
+    .select('identifier, content, created_at, parent_id')
     .eq('profile_id', PROFILE_ID)
     .order('created_at', { ascending: false })
-    .limit(50);
+    .limit(50)
+    .is('parent_id', null);
+
+  let { data, error } = await query;
+
+  if (error && error.code === '42703') {
+    ({ data, error } = await supabase
+      .from('comments')
+      .select('identifier, content, created_at')
+      .eq('profile_id', PROFILE_ID)
+      .order('created_at', { ascending: false })
+      .limit(50));
+  }
 
   if (error && error.code === '42P01') return NextResponse.json([]);
   if (error) {

@@ -56,10 +56,13 @@ create table comments (
   profile_id integer references profiles(id),
   username text,
   avatar_url text,
+  parent_id integer references comments(id),
   content text not null,
   created_at timestamptz default now()
 );
 
+-- caso já exista a tabela sem essa coluna
+-- alter table comments add column parent_id integer references comments(id);
 create table favorites (
   id serial primary key,
   profile_id integer references profiles(id),

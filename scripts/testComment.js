@@ -26,6 +26,19 @@ async function main() {
 
   console.log('Insert succeeded:', data);
 
+  const { data: reply, error: replyError } = await supabase
+    .from('comments')
+    .insert({ identifier, parent_id: data.id, profile_id: 1, username: 'Test Runner', content: 'Reply from test' })
+    .select('id, parent_id')
+    .single();
+
+  if (replyError) {
+    console.error('Reply insert failed:', replyError);
+    process.exit(1);
+  }
+
+  console.log('Reply insert succeeded:', reply);
+
   const { data: fetched, error: fetchError } = await supabase
     .from('comments')
     .select('id, content, created_at, profiles(username, avatar_url)')

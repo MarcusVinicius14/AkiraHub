@@ -15,7 +15,7 @@ export async function GET(request) {
   let { data, error } = await supabase
     .from('comments')
     .select(
-      'id, content, created_at, username, avatar_url, profiles(username, avatar_url)'
+      'id, content, created_at, username, avatar_url, parent_id, profiles(username, avatar_url)'
     )
     .eq('identifier', identifier)
     .order('created_at', { ascending: false });
@@ -23,7 +23,7 @@ export async function GET(request) {
     // tabela ou coluna ausente, tentar sem o join
     ({ data, error } = await supabase
       .from('comments')
-      .select('id, username, avatar_url, content, created_at')
+      .select('id, username, avatar_url, content, created_at, parent_id')
       .eq('identifier', identifier)
       .order('created_at', { ascending: false }));
   }
@@ -38,6 +38,7 @@ export async function GET(request) {
     created_at: c.created_at,
     username: c.profiles?.username || c.username,
     avatar_url: c.profiles?.avatar_url || c.avatar_url,
+    parent_id: c.parent_id || null,
   }));
 
   return NextResponse.json(formatted);
@@ -45,21 +46,21 @@ export async function GET(request) {
 
 export async function POST(request) {
   const body = await request.json();
-  const { identifier, content, profile_id, username, avatar_url } = body;
+  const { identifier, content, profile_id, username, avatar_url, parent_id } = body;
   if (!identifier || !content) {
     return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
   }
   let { data, error } = await supabase
     .from('comments')
-    .insert({ identifier, profile_id, username, avatar_url, content })
-    .select('id, content, created_at, username, avatar_url, profiles(username, avatar_url)')
+    .insert({ identifier, profile_id, username, avatar_url, content, parent_id })
+    .select('id, content, created_at, username, avatar_url, parent_id, profiles(username, avatar_url)')
     .single();
   if (error && error.code === 'PGRST204') {
     // coluna profile_id ou avatar_url pode não existir
     ({ data, error } = await supabase
       .from('comments')
-      .insert({ identifier, username, avatar_url, content })
-      .select()
+      .insert({ identifier, username, avatar_url, content, parent_id })
+      .select('id, content, created_at, username, avatar_url, parent_id')
       .single());
   }
   if (error) {
@@ -72,6 +73,7 @@ export async function POST(request) {
     created_at: data.created_at,
     username: data.profiles?.username || data.username,
     avatar_url: data.profiles?.avatar_url || data.avatar_url,
+    parent_id: data.parent_id || null,
   };
 
   return NextResponse.json(result);
