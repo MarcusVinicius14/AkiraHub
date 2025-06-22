@@ -10,19 +10,23 @@ export default function CommentsSection({ identifier }) {
   const [replyingTo, setReplyingTo] = useState(null);
   const replyRef = useRef(null);
 
-  useEffect(() => {
-    if (replyingTo && replyRef.current) {
-      replyRef.current.focus();
+  // callback ref: foca e posiciona cursor só quando o textarea aparece
+  const setReplyRef = (el) => {
+    replyRef.current = el;
+    if (el) {
+      const len = el.value.length;
+      el.focus();
+      el.setSelectionRange(len, len);
     }
-  }, [replyingTo]);
+  };
 
+  // busca comentários iniciais
   useEffect(() => {
     async function fetchComments() {
       try {
         const res = await fetch(`/api/comments?identifier=${identifier}`);
         if (!res.ok) {
-          const err = await res.json();
-          console.error("Erro ao carregar comentários", err);
+          console.error("Erro ao carregar comentários", await res.json());
           return;
         }
         const data = await res.json();
@@ -34,6 +38,7 @@ export default function CommentsSection({ identifier }) {
     fetchComments();
   }, [identifier]);
 
+  // agrupa respostas por parent_id
   const repliesByParent = useMemo(() => {
     const map = {};
     comments.forEach((c) => {
@@ -45,30 +50,33 @@ export default function CommentsSection({ identifier }) {
     return map;
   }, [comments]);
 
+  // busca perfil do usuário
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const res = await fetch('/api/profile');
+        const res = await fetch("/api/profile");
         if (res.ok) {
           const data = await res.json();
           setProfile(data);
           if (data.username) setUsername(data.username);
         }
       } catch (err) {
-        console.error('Erro ao buscar perfil', err);
+        console.error("Erro ao buscar perfil", err);
       }
     }
     fetchProfile();
   }, []);
 
+  // envia comentário ou resposta
   async function handleSubmit(e, parentId = null) {
     e.preventDefault();
     const text = parentId ? replyText : content;
-    if (!text || !text.trim()) return;
+    if (!text.trim()) return;
+
     try {
-      const res = await fetch('/api/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           identifier,
           profile_id: profile?.id || null,
@@ -79,30 +87,35 @@ export default function CommentsSection({ identifier }) {
         }),
       });
       if (!res.ok) {
-        const err = await res.json();
-        console.error('Erro ao enviar comentário', err);
+        console.error("Erro ao enviar comentário", await res.json());
         return;
       }
       const data = await res.json();
       setComments([data, ...comments]);
       if (parentId) {
-        setReplyText('');
+        setReplyText("");
         setReplyingTo(null);
       } else {
-        setContent('');
+        setContent("");
       }
     } catch (err) {
-      console.error('Erro inesperado ao enviar comentário', err);
+      console.error("Erro inesperado ao enviar comentário", err);
     }
   }
 
+  // renderiza um comentário (e suas respostas recursivamente)
   function CommentItem({ comment }) {
     const replies = repliesByParent[comment.id] || [];
+
     return (
       <div className="flex space-x-3">
         <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0 overflow-hidden">
           {comment.avatar_url && (
-            <img src={comment.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+            <img
+              src={comment.avatar_url}
+              alt="avatar"
+              className="w-full h-full object-cover"
+            />
           )}
         </div>
         <div className="flex-1">
@@ -116,16 +129,20 @@ export default function CommentsSection({ identifier }) {
           <button
             onClick={() => {
               setReplyingTo(replyingTo === comment.id ? null : comment.id);
-              setReplyText('');
+              setReplyText("");
             }}
             className="text-xs text-blue-600 mt-1 cursor-pointer hover:underline"
           >
             Responder
           </button>
+
           {replyingTo === comment.id && (
-            <form onSubmit={(e) => handleSubmit(e, comment.id)} className="mt-2 space-y-2">
+            <form
+              onSubmit={(e) => handleSubmit(e, comment.id)}
+              className="mt-2 space-y-2"
+            >
               <textarea
-                ref={replyRef}
+                ref={setReplyRef}
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 className="w-full border rounded p-2 text-sm"
@@ -142,6 +159,7 @@ export default function CommentsSection({ identifier }) {
               </div>
             </form>
           )}
+
           {replies.length > 0 && (
             <div className="mt-4 ml-6 space-y-4">
               {replies.map((r) => (
@@ -154,9 +172,10 @@ export default function CommentsSection({ identifier }) {
     );
   }
 
+  // JSX principal
   return (
     <div className="mt-4">
-      <form onSubmit={handleSubmit} className="mb-6">
+      <form onSubmit={(e) => handleSubmit(e, null)} className="mb-6">
         <div className="flex space-x-3 mb-2">
           <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0 overflow-hidden">
             {profile?.avatar_url && (
@@ -196,6 +215,7 @@ export default function CommentsSection({ identifier }) {
           </button>
         </div>
       </form>
+
       <div className="space-y-6">
         {comments.length === 0 && (
           <p className="text-gray-600">Seja o primeiro a comentar!</p>
