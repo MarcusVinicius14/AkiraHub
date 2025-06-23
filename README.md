@@ -28,14 +28,3 @@ Este projeto utiliza `next/font` para otimizar e carregar automaticamente a font
 
 Crie um arquivo `.env.local` com base no `.env.example` e preencha com suas credenciais do Supabase.
 
-Você também precisará de uma tabela `comments` com as seguintes colunas:
-
-- `id`
-- `identifier`
-- `username`
-- `content`
-- `created_at`
-
-Esses dados são utilizados para armazenar os comentários dos usuários.
-
-Os comentários aparecem no final de cada página de obra, incluindo episódios e capítulos individuais, utilizando o componente `CommentsSection`.
