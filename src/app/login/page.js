@@ -20,7 +20,7 @@ export default function LoginPage() {
       setMessage("Email ou senha incorretos. Tente novamente!");
     } else {
       setMessage("Login realizado");
-      router.push("/profile");
+      router.push("/");
     }
   }
 
