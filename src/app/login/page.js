@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 
 // A função de cadastro ainda pode usar o cliente Supabase
 import { supabase } from "../../../lib/supabaseClient";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -93,13 +94,16 @@ export default function LoginPage() {
               />
             </div>
             <div className="flex space-x-2 justify-end pt-2">
-              <button
-                type="button"
-                onClick={handleSignup}
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-              >
-                Cadastrar
-              </button>
+              {/* ALTERE ESTE BOTÃO */}
+              <Link href="/register">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                >
+                  Cadastrar
+                </button>
+              </Link>
+
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
