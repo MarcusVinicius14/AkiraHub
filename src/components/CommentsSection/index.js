@@ -1,16 +1,20 @@
 "use client";
 import { useEffect, useState, useMemo, useRef } from "react";
+import { useSession } from "next-auth/react";
+import Image from "next/image"; // Mantive o Image do Next.js para otimização
+import Link from "next/link";
 
 export default function CommentsSection({ identifier }) {
   const [comments, setComments] = useState([]);
   const [content, setContent] = useState("");
-  const [username, setUsername] = useState("");
-  const [profile, setProfile] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
   const replyRef = useRef(null);
 
-  // callback ref: foca e posiciona cursor só quando o textarea aparece
+  // Fonte única de dados do usuário
+  const { data: session } = useSession();
+  const isLoggedIn = !!session;
+
   const setReplyRef = (el) => {
     replyRef.current = el;
     if (el) {
@@ -20,7 +24,6 @@ export default function CommentsSection({ identifier }) {
     }
   };
 
-  // busca comentários iniciais
   useEffect(() => {
     async function fetchComments() {
       try {
@@ -38,7 +41,6 @@ export default function CommentsSection({ identifier }) {
     fetchComments();
   }, [identifier]);
 
-  // agrupa respostas por parent_id
   const repliesByParent = useMemo(() => {
     const map = {};
     comments.forEach((c) => {
@@ -50,28 +52,10 @@ export default function CommentsSection({ identifier }) {
     return map;
   }, [comments]);
 
-  // busca perfil do usuário
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await fetch("/api/profile");
-        if (res.ok) {
-          const data = await res.json();
-          setProfile(data);
-          if (data.username) setUsername(data.username);
-        }
-      } catch (err) {
-        console.error("Erro ao buscar perfil", err);
-      }
-    }
-    fetchProfile();
-  }, []);
-
-  // envia comentário ou resposta
   async function handleSubmit(e, parentId = null) {
     e.preventDefault();
     const text = parentId ? replyText : content;
-    if (!text.trim()) return;
+    if (!text.trim() || !isLoggedIn) return; // Garante que o usuário está logado
 
     try {
       const res = await fetch("/api/comments", {
@@ -79,19 +63,22 @@ export default function CommentsSection({ identifier }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           identifier,
-          profile_id: profile?.id || null,
-          username: username || profile?.username || null,
-          avatar_url: profile?.avatar_url || null,
+          profile_id: session.user.id,
+          username: session.user.name,
+          avatar_url: session.user.image, // <<-- ALTERAÇÃO PRINCIPAL
           content: text,
           parent_id: parentId,
         }),
       });
+
       if (!res.ok) {
         console.error("Erro ao enviar comentário", await res.json());
         return;
       }
-      const data = await res.json();
-      setComments([data, ...comments]);
+
+      const newComment = await res.json();
+      setComments([newComment, ...comments]); // Adiciona o novo comentário no topo
+
       if (parentId) {
         setReplyText("");
         setReplyingTo(null);
@@ -103,17 +90,17 @@ export default function CommentsSection({ identifier }) {
     }
   }
 
-  // renderiza um comentário (e suas respostas recursivamente)
   function CommentItem({ comment }) {
     const replies = repliesByParent[comment.id] || [];
-
     return (
       <div className="flex space-x-3">
         <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0 overflow-hidden">
           {comment.avatar_url && (
-            <img
+            <Image
               src={comment.avatar_url}
-              alt="avatar"
+              alt={comment.username || "avatar"}
+              width={40}
+              height={40}
               className="w-full h-full object-cover"
             />
           )}
@@ -126,15 +113,17 @@ export default function CommentsSection({ identifier }) {
             </span>
           </p>
           <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
-          <button
-            onClick={() => {
-              setReplyingTo(replyingTo === comment.id ? null : comment.id);
-              setReplyText("");
-            }}
-            className="text-xs text-blue-600 mt-1 cursor-pointer hover:underline"
-          >
-            Responder
-          </button>
+          {isLoggedIn && (
+            <button
+              onClick={() => {
+                setReplyingTo(replyingTo === comment.id ? null : comment.id);
+                setReplyText("");
+              }}
+              className="text-xs text-blue-600 mt-1 cursor-pointer hover:underline"
+            >
+              Responder
+            </button>
+          )}
 
           {replyingTo === comment.id && (
             <form
@@ -172,49 +161,53 @@ export default function CommentsSection({ identifier }) {
     );
   }
 
-  // JSX principal
   return (
     <div className="mt-4">
-      <form onSubmit={(e) => handleSubmit(e, null)} className="mb-6">
-        <div className="flex space-x-3 mb-2">
-          <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0 overflow-hidden">
-            {profile?.avatar_url && (
-              <img
-                src={profile.avatar_url}
-                alt="avatar"
-                className="w-full h-full object-cover"
-              />
-            )}
-          </div>
-          <div className="flex-1 space-y-2">
-            {!profile?.username && (
-              <input
-                type="text"
-                placeholder="Seu nome"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+      {isLoggedIn ? (
+        <form onSubmit={(e) => handleSubmit(e, null)} className="mb-6">
+          <div className="flex space-x-3 mb-2">
+            <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0 overflow-hidden">
+              {/* --- ALTERAÇÃO PRINCIPAL --- */}
+              {session.user?.image && (
+                <Image
+                  src={session.user.image}
+                  alt={session.user.name || "avatar"}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+            <div className="flex-1 space-y-2">
+              <p className="font-semibold text-sm">{session.user.name}</p>
+              <textarea
+                placeholder="Escreva um comentário"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
                 className="w-full border rounded p-2 text-sm"
+                rows={3}
               />
-            )}
-            <textarea
-              placeholder="Escreva um comentário"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full border rounded p-2 text-sm"
-              rows={3}
-            />
+            </div>
           </div>
-        </div>
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50 cursor-pointer hover:bg-blue-600"
-            disabled={!content.trim()}
-          >
-            Comentar
-          </button>
-        </div>
-      </form>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50 cursor-pointer hover:bg-blue-600"
+              disabled={!content.trim()}
+            >
+              Comentar
+            </button>
+          </div>
+        </form>
+      ) : (
+        <p className="text-gray-600 mb-6 border p-4 rounded-md">
+          Você precisa{" "}
+          <Link href="/login" className="text-blue-600 hover:underline">
+            fazer login
+          </Link>{" "}
+          para comentar.
+        </p>
+      )}
 
       <div className="space-y-6">
         {comments.length === 0 && (
