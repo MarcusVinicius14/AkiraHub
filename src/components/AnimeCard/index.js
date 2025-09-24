@@ -2,9 +2,13 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function AnimeCard({ anime }) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const { data: session } = useSession();
+
+  const isLoggedIn = !!session;
 
   const cardMaxWidth = "max-w-md";
   const imageWidth = "w-20";
@@ -34,7 +38,7 @@ export default function AnimeCard({ anime }) {
           setIsFavorite(data.favorited);
         }
       } catch (err) {
-        console.error('Erro ao verificar favorito', err);
+        console.error("Erro ao verificar favorito", err);
       }
     }
     if (id) checkFavorite();
@@ -43,23 +47,36 @@ export default function AnimeCard({ anime }) {
   async function toggleFavorite() {
     try {
       if (isFavorite) {
-        await fetch('/api/favorites', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ work_type: 'anime', work_id: id }),
+        await fetch("/api/favorites", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ work_type: "anime", work_id: id }),
         });
       } else {
-        await fetch('/api/favorites', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ work_type: 'anime', work_id: id }),
+        await fetch("/api/favorites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ work_type: "anime", work_id: id }),
         });
       }
       setIsFavorite(!isFavorite);
     } catch (err) {
-      console.error('Erro ao atualizar favorito', err);
+      console.error("Erro ao atualizar favorito", err);
     }
   }
+
+  const handleFavoriteClick = () => {
+    if (isLoggedIn) {
+      // If the user is logged in, call the real function
+      toggleFavorite();
+    } else {
+      // If not logged in, trigger another action
+      // For example: open a login modal, redirect to the login page, or show a notification.
+      alert("Faça login para favoritar!");
+      // or openLoginModal();
+      // or history.push('/login');
+    }
+  };
 
   return (
     <div
@@ -100,7 +117,7 @@ export default function AnimeCard({ anime }) {
       </Link>
       <div className="flex flex-col justify-center pr-6 pl-6 border-l-2 border-gray-200 my-2 space-y-3">
         {/* Botão “Comentar” */}
-        <Link href={`/obra/anime/${id}/${1}`}>
+        <Link href={`/obra/anime/${id}`}>
           <button className="flex items-center text-xs font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-300 active:bg-gray-400 cursor-pointer rounded-md p-2 transition">
             <svg
               className="w-4 h-4 mr-1"
@@ -126,7 +143,7 @@ export default function AnimeCard({ anime }) {
               ? "text-red-500 hover:text-red-700 hover:bg-red-100"
               : "text-gray-600 hover:bg-gray-300 active:bg-gray-400 cursor-pointer"
           }`}
-          onClick={toggleFavorite}
+          onClick={handleFavoriteClick}
         >
           <svg
             className="w-4 h-4 mr-1"
