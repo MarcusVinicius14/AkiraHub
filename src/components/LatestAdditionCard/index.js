@@ -2,9 +2,13 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function LatestAdditionCard({ item, type }) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const { data: session } = useSession();
+
+  const isLoggedIn = !!session;
 
   const id = item.mal_id;
   const imageUrl = item?.large_image_url;
@@ -16,6 +20,40 @@ export default function LatestAdditionCard({ item, type }) {
         : "lançando"
       : null;
   const score = item?.score;
+
+  async function toggleFavorite() {
+    try {
+      if (isFavorite) {
+        await fetch("/api/favorites", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ work_type: "manga", work_id: id }),
+        });
+      } else {
+        await fetch("/api/favorites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ work_type: "manga", work_id: id }),
+        });
+      }
+      setIsFavorite(!isFavorite);
+    } catch (err) {
+      console.error("Erro ao atualizar favorito", err);
+    }
+  }
+
+  const handleFavoriteClick = () => {
+    if (isLoggedIn) {
+      // If the user is logged in, call the real function
+      toggleFavorite();
+    } else {
+      // If not logged in, trigger another action
+      // For example: open a login modal, redirect to the login page, or show a notification.
+      alert("Faça login para favoritar!");
+      // or openLoginModal();
+      // or history.push('/login');
+    }
+  };
 
   return (
     <div className="bg-white rounded-md shadow-sm overflow-hidden flex flex-col">
@@ -58,10 +96,12 @@ export default function LatestAdditionCard({ item, type }) {
         </div>
       </Link>
       {/* Botões */}
-      <div className="flex border-t border-gray-200 mt-auto">
-        <button
-          className=" flex-1 flex items-center justify-center py-2 text-xs font-medium text-gray-600 hover:bg-gray-300 active:bg-gray-400 cursor-pointer transition"
-          onClick={() => alert(`Abrir comentários: ${title}`)}
+      <div className="flex border-t border-gray-200 mt-auto justify-between">
+        {/* VERSÃO CORRIGIDA */}
+        <Link
+          href={`/obra/${type}/${id}`}
+          // As classes de layout agora estão aqui no Link
+          className="flex-1 flex items-center justify-center py-2 text-xs font-medium text-gray-600 hover:bg-gray-300 active:bg-gray-400 cursor-pointer transition"
         >
           <svg
             className="w-4 h-4 mr-1"
@@ -73,25 +113,22 @@ export default function LatestAdditionCard({ item, type }) {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
-              d="M8 12h.01M12 12h.01M16 12h.01M21 
-                 12c0 4.418-4.03 8-9 8a9.863 9.863 
-                 0 01-4.255-.949L3 20l1.395-3.72C3.512 
-                 15.042 3 13.574 3 12c0-4.418 4.03-8 
-                 9-8s9 3.582 9 8z"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
             />
           </svg>
           Comentar
-        </button>
+        </Link>
 
         <div className="w-px bg-gray-200" />
 
+        {/* O botão de favoritar continua o mesmo, pois já estava correto */}
         <button
-          className={` hover:bg-gray-300 active:bg-gray-400 cursor-pointer flex-1 flex items-center justify-center py-2 text-xs font-medium transition ${
+          className={`flex-1 flex items-center justify-center py-2 text-xs font-medium transition cursor-pointer hover:bg-gray-300 active:bg-gray-400 ${
             isFavorite
               ? "text-red-500 hover:bg-red-100"
               : "text-gray-600 hover:bg-gray-50"
           }`}
-          onClick={() => setIsFavorite(!isFavorite)}
+          onClick={handleFavoriteClick}
         >
           <svg
             className="w-4 h-4 mr-1"
@@ -103,12 +140,7 @@ export default function LatestAdditionCard({ item, type }) {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
-              d="M4.318 
-                 6.318a4.5 4.5 0 000 
-                 6.364L12 20.364l7.682-7.682a4.5 
-                 4.5 0 00-6.364-6.364L12 
-                 7.636l-1.318-1.318a4.5 
-                 4.5 0 00-6.364 0z"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
             />
           </svg>
           {isFavorite ? "Favoritado" : "Favoritar"}
