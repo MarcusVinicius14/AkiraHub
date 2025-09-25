@@ -6,6 +6,7 @@ import MangaList from "../components/MangaList";
 import AnimeList from "../components/AnimeList";
 import NewsList from "../components/NewsList";
 import LatestAdditions from "../components/LatestAdditions";
+import Chatbot from "../components/Chatbot";
 
 export default function Home() {
   return (
@@ -40,6 +41,7 @@ export default function Home() {
           </div>
         </div>
       </main>
+      <Chatbot />
     </div>
   );
 }
