@@ -1,107 +1,89 @@
+// app/api/profile/route.js
+
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]/route";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// O cliente admin do Supabase continua o mesmo
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
-const supabase = createClient(supabaseUrl, serviceKey);
-const PROFILE_ID = 1;
+export async function POST(req) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+  const userId = session.user.id;
 
-export async function GET() {
-  let { data, error } = await supabase
-    .from("profiles")
-    .select("id, username, avatar_url")
-    .eq("id", PROFILE_ID)
-    .single();
-  if (error && error.code === "42703") {
-    // algumas colunas podem não existir, tentar somente as básicas
-    ({ data, error } = await supabase
-      .from("profiles")
-      .select("id, username, avatar_url")
-      .eq("id", PROFILE_ID)
-      .single());
-  }
-  if (error && error.code === "42P01") {
-    // tabela não existe, retornar perfil vazio
-    return NextResponse.json({});
-  }
-  if (error && error.code !== "PGRST116") {
-    console.error("Erro ao buscar perfil", error);
-    return NextResponse.json(
-      { error: "Erro ao buscar perfil" },
-      { status: 500 }
-    );
-  }
+  try {
+    // 1. Usa o método nativo do Next.js para ler o FormData
+    const formData = await req.formData();
 
-  if (!data) {
-    // cria um perfil básico caso nenhum registro seja encontrado
-    const { data: inserted, error: insertError } = await supabase
-      .from("profiles")
-      .insert({ id: PROFILE_ID })
-      .select("id, username, avatar_url")
-      .single();
-    if (insertError) {
-      console.error("Erro ao criar perfil", insertError);
-      return NextResponse.json({});
+    // 2. Pega os campos e o arquivo diretamente do formData
+    const username = formData.get("username");
+    const password = formData.get("password"); // Pode ser null se não for enviado
+    const favorite_anime_id = formData.get("favorite_anime_id");
+    const favorite_manga_id = formData.get("favorite_manga_id");
+    const avatarFile = formData.get("avatarFile"); // O objeto do arquivo
+
+    let avatarUrl = session.user.image;
+
+    // 3. Lógica de upload atualizada
+    if (avatarFile && typeof avatarFile.arrayBuffer === "function") {
+      const fileBuffer = Buffer.from(await avatarFile.arrayBuffer());
+      const filePath = `${userId}/${Date.now()}_${avatarFile.name}`;
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from("avatars")
+        .upload(filePath, fileBuffer, {
+          contentType: avatarFile.type,
+          upsert: true,
+        });
+
+      if (uploadError)
+        throw new Error(`Erro no upload do avatar: ${uploadError.message}`);
+
+      const { data: urlData } = supabaseAdmin.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+      avatarUrl = urlData.publicUrl;
     }
-    data = inserted;
-  }
-  return NextResponse.json(data || {});
-}
 
-export async function POST(request) {
-  const body = await request.json();
-  const {
-    username,
-    avatar_url,
-    email,
-    password,
-    favorite_anime_id,
-    favorite_manga_id,
-  } = body;
-  if (!username && !avatar_url && !email && !password) {
-    return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
-  }
-  let { data, error } = await supabase
-    .from("profiles")
-    .upsert(
-      {
-        id: PROFILE_ID,
-        username,
-        avatar_url,
-        email,
-        password,
-        favorite_anime_id,
-        favorite_manga_id,
-      },
-      { onConflict: "id" }
-    )
-    .select("id, username, avatar_url")
-    .single();
-  if (error && error.code === "42703") {
-    ({ data, error } = await supabase
+    // O resto da lógica para atualizar o perfil e a autenticação continua a mesma
+    const { error: profileError } = await supabaseAdmin
       .from("profiles")
-      .upsert(
-        {
-          id: PROFILE_ID,
-          username,
-          avatar_url,
-        },
-        { onConflict: "id" }
-      )
-      .select("id, username, avatar_url")
-      .single());
+      .update({
+        username,
+        avatar_url: avatarUrl,
+        favorite_anime_id: favorite_anime_id || null,
+        favorite_manga_id: favorite_manga_id || null,
+      })
+      .eq("id", userId);
+
+    if (profileError)
+      throw new Error(`Erro ao atualizar perfil: ${profileError.message}`);
+
+    const userUpdateData = {};
+    if (password) {
+      userUpdateData.password = password;
+    }
+
+    if (Object.keys(userUpdateData).length > 0) {
+      const { error: authError } =
+        await supabaseAdmin.auth.admin.updateUserById(userId, userUpdateData);
+      if (authError)
+        throw new Error(`Erro ao atualizar autenticação: ${authError.message}`);
+    }
+
+    return NextResponse.json({
+      message: "Perfil atualizado com sucesso!",
+      newAvatarUrl: avatarUrl,
+    });
+  } catch (error) {
+    console.error("Erro na API de perfil:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  if (error && error.code === "42P01") {
-    // tabela inexistente, retornar dados sem salvar
-    return NextResponse.json({ id: PROFILE_ID, username, avatar_url });
-  }
-  if (error) {
-    console.error("Erro ao salvar perfil", error);
-    return NextResponse.json(
-      { error: "Erro ao salvar perfil" },
-      { status: 500 }
-    );
-  }
-  return NextResponse.json(data);
 }

@@ -58,14 +58,23 @@ export const authOptions = {
     signIn: "/login",
   },
   callbacks: {
-    jwt: async ({ token, user }) => {
+    // O callback 'jwt' é chamado para criar/atualizar o token
+    jwt: async ({ token, user, trigger, session }) => {
+      // No login inicial, o objeto 'user' do 'authorize' está disponível
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.picture = user.image;
       }
+      // QUANDO A SESSÃO É ATUALIZADA (ex: no perfil)
+      if (trigger === "update" && session) {
+        // Atualiza o token com os novos dados passados pela função update()
+        token.name = session.name;
+        token.picture = session.image;
+      }
       return token;
     },
+    // O callback 'session' passa os dados do token para o cliente
     session: async ({ session, token }) => {
       if (token) {
         session.user.id = token.id;
