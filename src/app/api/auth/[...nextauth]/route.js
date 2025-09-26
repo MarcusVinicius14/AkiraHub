@@ -8,7 +8,7 @@ const supabase = createClient(
   { auth: { persistSession: false } }
 );
 
-export const authOptions = {
+const authOptions = {
   providers: [
     // GithubProvider({...}), // Seu provedor do Github, se ainda estiver usando
     CredentialsProvider({
