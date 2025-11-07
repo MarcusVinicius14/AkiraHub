@@ -3,41 +3,47 @@ const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const profileId = process.env.TEST_PROFILE_UUID; 
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('Supabase credentials are missing.');
+  console.error('Credenciais do Supabase ausentes.');
+  process.exit(1);
+}
+
+if (!profileId) {
+  console.error('TEST_PROFILE_UUID ausente. Defina com um UUID válido de profiles.id.');
   process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function main() {
-  const identifier = `test-${Date.now()}`;
+  const identifier = `teste-${Date.now()}`;
   const { data, error } = await supabase
     .from('comments')
-    .insert({ identifier, profile_id: 1, username: 'Test Runner', content: 'Hello from test' })
+    .insert({ identifier, profile_id: profileId, username: 'Teste Automatizado', content: 'Testando comentario pai' })
     .select('id, content, created_at, profiles(username, avatar_url)')
     .single();
 
   if (error) {
-    console.error('Insert failed:', error);
+    console.error('Falha ao inserir comentário:', error);
     process.exit(1);
   }
 
-  console.log('Insert succeeded:', data);
+  console.log('Comentário inserido com sucesso:', data);
 
   const { data: reply, error: replyError } = await supabase
     .from('comments')
-    .insert({ identifier, parent_id: data.id, profile_id: 1, username: 'Test Runner', content: 'Reply from test' })
+    .insert({ identifier, parent_id: data.id, profile_id: profileId, username: 'Teste Automatizado', content: 'Resposta comentario filho' })
     .select('id, parent_id')
     .single();
 
   if (replyError) {
-    console.error('Reply insert failed:', replyError);
+    console.error('Falha ao inserir resposta:', replyError);
     process.exit(1);
   }
 
-  console.log('Reply insert succeeded:', reply);
+  console.log('Resposta inserida com sucesso:', reply);
 
   const { data: fetched, error: fetchError } = await supabase
     .from('comments')
@@ -46,14 +52,14 @@ async function main() {
     .single();
 
   if (fetchError) {
-    console.error('Fetch failed:', fetchError);
+    console.error('Falha ao buscar comentário:', fetchError);
     process.exit(1);
   }
 
-  console.log('Fetch succeeded:', fetched);
+  console.log('Comentário buscado com sucesso:', fetched);
 }
 
 main().catch((err) => {
-  console.error('Unexpected error:', err);
+  console.error('Erro inesperado:', err);
   process.exit(1);
 });
