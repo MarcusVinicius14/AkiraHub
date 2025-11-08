@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import TopNavbar from "@/components/TopNavbar";
 import Header from "@/components/Header";
+import { Eye, EyeOff } from "lucide-react";
 
 // A função de cadastro ainda pode usar o cliente Supabase
 import { supabase } from "../../../lib/supabaseClient";
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // 2. Atualize a função de login
   async function handleLogin(e) {
@@ -85,13 +87,23 @@ export default function LoginPage() {
               >
                 Senha
               </label>
-              <input
-                id="pass"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="border rounded w-full p-2"
-              />
+              <div className="relative">
+                <input
+                  id="pass"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="border rounded w-full p-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
             <div className="flex space-x-2 justify-end pt-2">
               {/* ALTERE ESTE BOTÃO */}

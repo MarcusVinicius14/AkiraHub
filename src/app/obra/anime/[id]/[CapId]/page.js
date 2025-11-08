@@ -39,9 +39,7 @@ export default function EpisodeDetails() {
 
         // Se houver erro de "não encontrado" ou data for null, tenta na segunda tabela
         if (error?.code === "PGRST116" || !data) {
-          console.log(
-            "Anime não encontrado na tabela 'animes', buscando em 'season_now'..."
-          );
+          
           // Segunda tentativa: procurar na tabela "season_now"
           const { data: seasonNowData, error: seasonNowError } = await supabase
             .from("season_now")
@@ -50,9 +48,7 @@ export default function EpisodeDetails() {
             .single();
 
           if (seasonNowError?.code === "PGRST116" || !seasonNowData) {
-            console.log(
-              "Anime não encontrado na tabela 'season_now', buscando em 'season_upcoming'..."
-            );
+            
             // Terceira tentativa: procurar na tabela "season_upcoming"
             const { data: upcomingData, error: upcomingError } = await supabase
               .from("season_upcoming")
@@ -61,9 +57,7 @@ export default function EpisodeDetails() {
               .single();
 
             if (upcomingError?.code === "PGRST116" || !upcomingData) {
-              console.log(
-                "Anime não encontrado na tabela 'season_upcoming', buscando em 'top_anime'..."
-              );
+              
               // Quarta tentativa: procurar na tabela "top_anime"
               const { data: topAnimeData, error: topAnimeError } =
                 await supabase
@@ -251,7 +245,7 @@ export default function EpisodeDetails() {
               </Link>
             </div>
 
-            <div className="mt-3 flex justify-end">
+            {/* <div className="mt-3 flex justify-end">
               <select className="bg-gray-200 hover:bg-gray-100 active:bg-gray-200 cursor-pointer text-gray-700 px-2 py-1 rounded-md text-sm">
                 <option>Selecionar Status</option>
                 <option>Assistindo</option>
@@ -260,7 +254,7 @@ export default function EpisodeDetails() {
                 <option>Abandonado</option>
                 <option>Pretendo assistir</option>
               </select>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

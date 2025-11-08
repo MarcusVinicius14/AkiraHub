@@ -16,7 +16,6 @@ export default function AnimeDetails() {
 
   const params = useParams();
   const userId = params.id;
-  console.log({ userId });
 
   useEffect(() => {
     async function fetchData() {
@@ -31,9 +30,7 @@ export default function AnimeDetails() {
 
         // Se houver erro de "não encontrado" ou data for null, tenta na segunda tabela
         if (error?.code === "PGRST116" || !data) {
-          console.log(
-            "Anime não encontrado na tabela 'animes', buscando em 'season_now'..."
-          );
+          
           // Segunda tentativa: procurar na tabela "season_now"
           const { data: seasonNowData, error: seasonNowError } = await supabase
             .from("season_now")
@@ -42,9 +39,7 @@ export default function AnimeDetails() {
             .single();
 
           if (seasonNowError?.code === "PGRST116" || !seasonNowData) {
-            console.log(
-              "Anime não encontrado na tabela 'season_now', buscando em 'season_upcoming'..."
-            );
+            
             // Terceira tentativa: procurar na tabela "season_upcoming"
             const { data: upcomingData, error: upcomingError } = await supabase
               .from("season_upcoming")
@@ -53,9 +48,7 @@ export default function AnimeDetails() {
               .single();
 
             if (upcomingError?.code === "PGRST116" || !upcomingData) {
-              console.log(
-                "Anime não encontrado na tabela 'season_upcoming', buscando em 'top_anime'..."
-              );
+              
               // Quarta tentativa: procurar na tabela "top_anime"
               const { data: topAnimeData, error: topAnimeError } =
                 await supabase
@@ -170,7 +163,7 @@ export default function AnimeDetails() {
               </Link>
             </div>
 
-            <div className="mt-3 flex justify-end">
+            {/* <div className="mt-3 flex justify-end">
               <select className="bg-gray-200 hover:bg-gray-100 active:bg-gray-200 cursor-pointer text-gray-700 px-2 py-1 rounded-md text-sm">
                 <option>Selecionar Status</option>
                 <option>Assistindo</option>
@@ -179,7 +172,7 @@ export default function AnimeDetails() {
                 <option>Abandonado</option>
                 <option>Pretendo assistir</option>
               </select>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -206,20 +199,28 @@ export default function AnimeDetails() {
       <div className="bg-white shadow rounded-lg p-4 mb-4 mx-4">
         <h2 className="font-bold text-lg mb-2">Gêneros</h2>
         <div className="flex flex-wrap gap-2">
-          {anime.genres ? (
-            anime.genres.split(", ").map((genre, index) => (
-              <span
-                key={index}
-                className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
-              >
-                {genre}
+          {(() => {
+            const genres = [
+              anime.genre1,
+              anime.genre2,
+              anime.genre3,
+            ].filter(Boolean);
+
+            return genres.length > 0 ? (
+              genres.map((genre, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                >
+                  {genre}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-600 text-sm">
+                Gêneros não disponíveis
               </span>
-            ))
-          ) : (
-            <span className="text-gray-600 text-sm">
-              Gêneros não disponíveis
-            </span>
-          )}
+            );
+          })()}
         </div>
       </div>
 

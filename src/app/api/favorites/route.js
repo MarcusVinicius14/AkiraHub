@@ -1,11 +1,32 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, serviceKey);
 
 export async function GET(request) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  }
+
+  // Get profile_id from profiles table
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("email", session.user.email)
+    .single();
+
+  if (profileError || !profile) {
+    console.error("Erro ao buscar profile", profileError);
+    return NextResponse.json({ error: "Perfil não encontrado" }, { status: 404 });
+  }
+
+  const profileId = profile.id;
   const { searchParams } = new URL(request.url);
   const workType = searchParams.get("work_type");
   const workId = searchParams.get("work_id");
@@ -15,7 +36,7 @@ export async function GET(request) {
     const { data, error } = await supabase
       .from("favorites")
       .select("id")
-      .eq("profile_id")
+      .eq("profile_id", profileId)
       .eq("work_type", workType)
       .eq("work_id", workId)
       .single();
@@ -33,7 +54,7 @@ export async function GET(request) {
   let { data, error } = await supabase
     .from("favorites")
     .select("id, work_type, work_id")
-    .eq("profile_id")
+    .eq("profile_id", profileId)
     .order("id");
 
   if (error && error.code === "42P01") {
@@ -97,15 +118,36 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  }
+
+  // Get profile_id from profiles table
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("email", session.user.email)
+    .single();
+
+  if (profileError || !profile) {
+    console.error("Erro ao buscar profile", profileError);
+    return NextResponse.json({ error: "Perfil não encontrado" }, { status: 404 });
+  }
+
+  const profileId = profile.id;
   const body = await request.json();
   const { work_type, work_id } = body;
+
   if (!work_type || !work_id) {
     return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
   }
+
   const { error } = await supabase
     .from("favorites")
     .upsert(
-      { profile_id: PROFILE_ID, work_type, work_id },
+      { profile_id: profileId, work_type, work_id },
       { onConflict: "profile_id,work_type,work_id" }
     );
   if (error && error.code !== "42P01") {
@@ -119,15 +161,36 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  }
+
+  // Get profile_id from profiles table
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("email", session.user.email)
+    .single();
+
+  if (profileError || !profile) {
+    console.error("Erro ao buscar profile", profileError);
+    return NextResponse.json({ error: "Perfil não encontrado" }, { status: 404 });
+  }
+
+  const profileId = profile.id;
   const body = await request.json();
   const { work_type, work_id } = body;
+
   if (!work_type || !work_id) {
     return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
   }
+
   const { error } = await supabase
     .from("favorites")
     .delete()
-    .eq("profile_id", PROFILE_ID)
+    .eq("profile_id", profileId)
     .eq("work_type", work_type)
     .eq("work_id", work_id);
   if (error && error.code !== "42P01") {

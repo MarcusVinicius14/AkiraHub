@@ -29,11 +29,11 @@ export default function SideBar({ isOpen, onClose, onSignOut }) {
   return (
     <>
       {/* Overlay */}
-      {isOpen && <div className="fixed inset-0 z-40" onClick={onClose} />}
+      {isOpen && <div className="fixed inset-0 z-[60]" onClick={onClose} />}
 
       {/* Side Menu */}
       <div
-        className={`fixed top-0 right-0 w-1/6 min-w-64 h-full bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 w-1/6 min-w-64 h-full bg-white shadow-lg z-[70] transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >

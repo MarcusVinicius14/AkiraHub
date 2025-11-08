@@ -99,7 +99,7 @@ export default function MangaDetails() {
               </button>
             </div>
 
-            <div className="mt-3 flex justify-end">
+            {/* <div className="mt-3 flex justify-end">
               <select className="bg-gray-200 text-gray-700 hover:bg-gray-100 active:bg-gray-200 cursor-pointer px-2 py-1 rounded-md text-sm">
                 <option>Selecionar Status</option>
                 <option>Lendo</option>
@@ -107,7 +107,7 @@ export default function MangaDetails() {
                 <option>Em espera</option>
                 <option>Abandonado</option>
               </select>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -131,7 +131,30 @@ export default function MangaDetails() {
       {/* Gêneros */}
       <div className="bg-white shadow rounded-lg p-4 mb-4 mx-4">
         <h2 className="font-bold text-lg mb-2">Gêneros</h2>
-        Ver se ja tem as relacoes entre o banco de mangas e generos
+        <div className="flex flex-wrap gap-2">
+          {(() => {
+            const genres = [
+              manga.genre1,
+              manga.genre2,
+              manga.genre3,
+            ].filter(Boolean);
+
+            return genres.length > 0 ? (
+              genres.map((genre, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                >
+                  {genre}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-600 text-sm">
+                Gêneros não disponíveis
+              </span>
+            );
+          })()}
+        </div>
       </div>
 
       {/* Capítulos */}
