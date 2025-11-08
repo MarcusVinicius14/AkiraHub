@@ -1,10 +1,80 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { tokenize, normalizeSynonyms, parsePreferences } from "@/lib/reco/text";
-import { rankWorks } from "@/lib/reco/score";
 
 const TIP_MESSAGE =
   "Não encontrei nada com esse perfil. Tente dar 2–3 gêneros/temas e 1 exemplo que você goste.";
+
+// Funções auxiliares de texto
+function tokenize(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\sáéíóúâêôãõç]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function normalizeSynonyms(tokens) {
+  const synonyms = {
+    acao: "action",
+    aventura: "adventure",
+    comedia: "comedy",
+    drama: "drama",
+    fantasia: "fantasy",
+    romance: "romance",
+    scifi: "sci-fi",
+    misterio: "mystery",
+    terror: "horror",
+  };
+  return tokens.map((t) => synonyms[t] || t);
+}
+
+function parsePreferences(message) {
+  const tokens = normalizeSynonyms(tokenize(message));
+  const antiWords = ["sem", "nao", "não", "without", "no"];
+  const pos = [];
+  const anti = [];
+
+  for (let i = 0; i < tokens.length; i++) {
+    if (antiWords.includes(tokens[i]) && i + 1 < tokens.length) {
+      anti.push(tokens[i + 1]);
+      i++;
+    } else {
+      pos.push(tokens[i]);
+    }
+  }
+
+  return { pos, anti };
+}
+
+// Função de ranking
+function rankWorks(works, likes, dislikes, typeFilter, limit) {
+  const scored = works.map((work) => {
+    let score = 0;
+    const workGenres = (work.genres || []).map((g) => g.toLowerCase());
+
+    likes.forEach((like) => {
+      if (workGenres.some((g) => g.includes(like) || like.includes(g))) {
+        score += 10;
+      }
+      if (work.title.toLowerCase().includes(like)) {
+        score += 5;
+      }
+    });
+
+    dislikes.forEach((dislike) => {
+      if (workGenres.some((g) => g.includes(dislike) || dislike.includes(g))) {
+        score -= 20;
+      }
+    });
+
+    return { ...work, score };
+  });
+
+  return scored
+    .filter((w) => w.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
+}
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const supabaseServiceKey =

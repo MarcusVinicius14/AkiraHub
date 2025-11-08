@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { createClient } from "@supabase/supabase-js";
 
 // O cliente admin do Supabase continua o mesmo
