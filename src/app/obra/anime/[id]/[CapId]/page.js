@@ -190,10 +190,7 @@ export default function EpisodeDetails() {
               Episódio {episodeNumber}: {anime.title}
             </h1>
             <div className="flex flex-wrap gap-2 mb-3">
-              <p className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full flex items-center">
-                <Clock className="w-3 h-3 mr-1" />
-                24 min
-              </p>
+              
               <p className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full flex items-center">
                 <Star className="w-3 h-3 mr-1 text-yellow-500" />
                 {anime.score} ⭐

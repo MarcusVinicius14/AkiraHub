@@ -181,7 +181,7 @@ export default function AnimeDetails() {
       <div className="bg-white shadow rounded-lg p-4 mb-4 mx-4">
         <h2 className="font-bold text-lg mb-2">Sinopse</h2>
         <p className="text-gray-700 text-sm">
-          {anime.synopsis || "Sinopse não disponível"}
+          Fire Force gira em torno de Shinra Kusakabe, um jovem que se junta à Força Especial de Incêndio para combater os "Infernais", seres que surgiram da combustão humana espontânea. Motivada pelo desejo de descobrir a verdade por trás do incêndio que matou sua família, Shinra e a Oitava Companhia investigam os eventos sobrenaturais e a possível corrupção dentro das outras companhias de bombeiros, enquanto lutam contra um culto apocalíptico que manipula a criação dos Infernais.
         </p>
       </div>
 
@@ -189,9 +189,22 @@ export default function AnimeDetails() {
       <div className="bg-white shadow rounded-lg p-4 mb-4 mx-4">
         <h2 className="font-bold text-lg mb-2">Onde assistir</h2>
         <div className="flex flex-wrap gap-2">
-          <span className="text-gray-600 text-sm">
-            Links de streaming serão adicionados em breve
-          </span>
+          <a
+            href="https://www.crunchyroll.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:opacity-80 transition-opacity"
+          >
+            <Image
+              src="/crunchroll.png"
+              alt="Crunchyroll"
+              width={40}
+              height={20}
+              style={{ borderRadius: 5 }}
+              className="object-contain "
+              
+            />
+          </a>
         </div>
       </div>
 
@@ -244,16 +257,7 @@ export default function AnimeDetails() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center text-xs text-gray-500 justify-between">
-                  <div className="flex items-center">
-                    <MessageSquare size={12} className="mr-1" />
-                    <span>0 Comentários</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Clock size={12} className="mr-1" />
-                    <span>24 min</span>
-                  </div>
-                </div>
+                
               </div>
             </Link>
           ))}

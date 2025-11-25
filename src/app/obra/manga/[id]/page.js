@@ -115,18 +115,10 @@ export default function MangaDetails() {
       {/* Sinopse */}
       <div className="bg-white shadow rounded-lg p-4 mb-4 mx-4">
         <h2 className="font-bold text-lg mb-2">Sinopse</h2>
-        <p className="text-gray-700 text-sm">Verificar se vai ter sinopse</p>
+        <p className="text-gray-700 text-sm">Monster gira em torno de Kenzo Tenma, um neurocirurgião japonês na Alemanha, cuja vida é abalada quando ele salva um garoto chamado Johan Liebert, desobedecendo a ordens superiores. Anos depois, Tenma descobre que o garoto que ele salvou se tornou um psicopata que ele precisa caçar para corrigir o erro que pode ter cometido.</p>
       </div>
 
-      {/* Links de compra */}
-      <div className="bg-white shadow rounded-lg p-4 mb-4 mx-4">
-        <h2 className="font-bold text-lg mb-2">
-          Onde comprar, ler ou fazer tracking
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          Fazer funcao para carregar link de compra
-        </div>
-      </div>
+      
 
       {/* Gêneros */}
       <div className="bg-white shadow rounded-lg p-4 mb-4 mx-4">
@@ -174,16 +166,7 @@ export default function MangaDetails() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center text-xs text-gray-500 justify-between">
-                  <div className="flex items-center">
-                    <MessageSquare size={12} className="mr-1" />
-                    <span> Comentários</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Clock size={12} className="mr-1" />
-                    <span>1 min</span>
-                  </div>
-                </div>
+                
               </div>
             </Link>
           ))}
