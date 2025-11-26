@@ -181,7 +181,7 @@ export default function AnimeDetails() {
       <div className="bg-white shadow rounded-lg p-4 mb-4 mx-4">
         <h2 className="font-bold text-lg mb-2">Sinopse</h2>
         <p className="text-gray-700 text-sm">
-          Fire Force gira em torno de Shinra Kusakabe, um jovem que se junta à Força Especial de Incêndio para combater os "Infernais", seres que surgiram da combustão humana espontânea. Motivada pelo desejo de descobrir a verdade por trás do incêndio que matou sua família, Shinra e a Oitava Companhia investigam os eventos sobrenaturais e a possível corrupção dentro das outras companhias de bombeiros, enquanto lutam contra um culto apocalíptico que manipula a criação dos Infernais.
+          Fire Force gira em torno de Shinra Kusakabe, um jovem que se junta à Força Especial de Incêndio para combater os &ldquo;Infernais&rdquo;, seres que surgiram da combustão humana espontânea. Motivada pelo desejo de descobrir a verdade por trás do incêndio que matou sua família, Shinra e a Oitava Companhia investigam os eventos sobrenaturais e a possível corrupção dentro das outras companhias de bombeiros, enquanto lutam contra um culto apocalíptico que manipula a criação dos Infernais.
         </p>
       </div>
 

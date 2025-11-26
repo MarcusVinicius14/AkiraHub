@@ -39,6 +39,9 @@ describe('Comments API Route - Testes Unitários com Mocks', () => {
     // Limpar todos os mocks antes de cada teste
     jest.clearAllMocks();
 
+    // Silenciar console.error durante os testes
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
     // Configurar comportamento padrão dos mocks
     mockSelect.mockReturnValue({ eq: mockEq });
     mockEq.mockReturnValue({ order: mockOrder, single: mockSingle });
@@ -53,6 +56,11 @@ describe('Comments API Route - Testes Unitários com Mocks', () => {
       select: mockSelect,
       insert: mockInsert,
     });
+  });
+
+  afterEach(() => {
+    // Restaurar console.error após cada teste
+    console.error.mockRestore();
   });
 
   describe('GET /api/comments', () => {

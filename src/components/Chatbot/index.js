@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 // extrai um número (1..12) do texto: "3 recomendações", "manda 5", etc.
 function extractDesiredCount(text) {
@@ -74,18 +75,18 @@ export default function Chatbot() {
     wasAtBottomRef.current = atBottom;
   };
 
-  const scrollToBottomIfNeeded = () => {
+  const scrollToBottomIfNeeded = useCallback(() => {
     if (!isOpen) return;
     if (wasAtBottomRef.current) {
       // só rola se usuário já estava no final
       setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 60);
     }
-  };
+  }, [isOpen]);
 
   // auto-scroll quando chegam novas mensagens
   useEffect(() => {
     scrollToBottomIfNeeded();
-  }, [messages, isOpen]);
+  }, [messages, isOpen, scrollToBottomIfNeeded]);
 
   // foco ao abrir e inicializa "no fundo"
   useEffect(() => {
@@ -261,11 +262,12 @@ export default function Chatbot() {
                                   aria-label={`Abrir página de ${item.type === "anime" ? "anime" : "mangá"} ${item.title}`}
                                 >
                                   {img && (
-                                    <img
+                                    <Image
                                       src={img}
                                       alt={item.title}
+                                      width={56}
+                                      height={80}
                                       className="h-20 w-14 flex-shrink-0 rounded-md object-cover"
-                                      loading="lazy"
                                     />
                                   )}
                                   <div className="min-w-0">
