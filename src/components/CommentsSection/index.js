@@ -89,9 +89,122 @@ export default function CommentsSection({ identifier }) {
       console.error("Erro inesperado ao enviar comentário", err);
     }
   }
+  const canModifyComment = (comment) => {
+    if (!session?.user) return false;
+    if (comment.profile_id != null && session.user.id != null) {
+      return String(comment.profile_id) === String(session.user.id);
+    }
+    if (!comment.profile_id && comment.username && session.user.name) {
+      return comment.username === session.user.name;
+    }
+    return false;
+  };
+
+  async function handleUpdateComment(commentId, newText) {
+    const nextValue = typeof newText === "string" ? newText.trim() : "";
+    if (!commentId || !nextValue || !isLoggedIn) return false;
+
+    try {
+      const response = await fetch("/api/comments", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: commentId,
+          content: newText,
+          profile_id: session?.user?.id,
+          username: session?.user?.name,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        console.error("Erro ao atualizar comentario", data);
+        return false;
+      }
+      setComments((prev) => prev.map((item) => (item.id === data.id ? { ...item, ...data } : item)));
+      return true;
+    } catch (err) {
+      console.error("Erro inesperado ao atualizar comentario", err);
+      return false;
+    }
+  }
+
+  async function handleDeleteComment(commentId) {
+    if (!commentId || !isLoggedIn) return false;
+    try {
+      const response = await fetch("/api/comments", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: commentId,
+          profile_id: session?.user?.id,
+          username: session?.user?.name,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        console.error("Erro ao excluir comentario", data);
+        return false;
+      }
+      const targetId = String(commentId);
+      setComments((prev) =>
+        prev.filter((item) => String(item.id) !== targetId && String(item.parent_id) !== targetId)
+      );
+      if (replyingTo === commentId) {
+        setReplyingTo(null);
+        setReplyText("");
+      }
+      return true;
+    } catch (err) {
+      console.error("Erro inesperado ao excluir comentario", err);
+      return false;
+    }
+  }
 
   function CommentItem({ comment }) {
     const replies = repliesByParent[comment.id] || [];
+    const canModify = canModifyComment(comment);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editText, setEditText] = useState(comment.content);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const isReplyingHere = replyingTo === comment.id;
+
+    useEffect(() => {
+      setEditText(comment.content);
+    }, [comment.content]);
+
+    const toggleReply = () => {
+      setReplyingTo(isReplyingHere ? null : comment.id);
+      setReplyText("");
+    };
+
+    const toggleEdit = () => {
+      setIsEditing((prev) => {
+        if (prev) {
+          setEditText(comment.content);
+        }
+        return !prev;
+      });
+    };
+
+    const submitEdit = async (event) => {
+      event.preventDefault();
+      if (!editText.trim()) return;
+      setIsSaving(true);
+      const ok = await handleUpdateComment(comment.id, editText);
+      setIsSaving(false);
+      if (ok) setIsEditing(false);
+    };
+
+    const handleDelete = async () => {
+      const confirmed =
+        typeof window === "undefined" || window.confirm("Deseja apagar este comentario?");
+      if (!confirmed) return;
+      setIsDeleting(true);
+      const ok = await handleDeleteComment(comment.id);
+      setIsDeleting(false);
+      return ok;
+    };
     return (
       <div className="flex space-x-3">
         <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0 overflow-hidden">
@@ -113,23 +226,70 @@ export default function CommentsSection({ identifier }) {
             </span>
           </p>
           <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
-          {isLoggedIn && (
-            <button
-              onClick={() => {
-                setReplyingTo(replyingTo === comment.id ? null : comment.id);
-                setReplyText("");
-              }}
-              className="text-xs text-blue-600 mt-1 cursor-pointer hover:underline"
-            >
-              Responder
-            </button>
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+            {isLoggedIn && (
+              <button
+                type="button"
+                onClick={toggleReply}
+                className="text-blue-600 hover:underline disabled:opacity-50"
+              >
+                {isReplyingHere ? "Cancelar resposta" : "Responder"}
+              </button>
+            )}
+            {canModify && (
+              <>
+                <button
+                  type="button"
+                  onClick={toggleEdit}
+                  className="text-slate-500 hover:underline disabled:opacity-50"
+                >
+                  {isEditing ? "Fechar edicao" : "Editar"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="text-red-600 hover:underline disabled:opacity-50"
+                >
+                  {isDeleting ? "Removendo..." : "Excluir"}
+                </button>
+              </>
+            )}
+          </div>
+
+          {isEditing && (
+            <form onSubmit={submitEdit} className="mt-3 space-y-2">
+              <textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                className="w-full border rounded p-2 text-sm"
+                rows={3}
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditText(comment.content);
+                  }}
+                  className="rounded border border-slate-300 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                  disabled={isSaving}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-3 py-1 rounded text-xs disabled:opacity-50 hover:bg-blue-600"
+                  disabled={isSaving || !editText.trim()}
+                >
+                  {isSaving ? "Salvando..." : "Salvar"}
+                </button>
+              </div>
+            </form>
           )}
 
-          {replyingTo === comment.id && (
-            <form
-              onSubmit={(e) => handleSubmit(e, comment.id)}
-              className="mt-2 space-y-2"
-            >
+          {isReplyingHere && (
+            <form onSubmit={(e) => handleSubmit(e, comment.id)} className="mt-2 space-y-2">
               <textarea
                 ref={setReplyRef}
                 value={replyText}
@@ -140,7 +300,7 @@ export default function CommentsSection({ identifier }) {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-3 py-1 rounded text-xs disabled:opacity-50 cursor-pointer hover:bg-blue-600"
+                  className="bg-blue-500 text-white px-3 py-1 rounded text-xs disabled:opacity-50 hover:bg-blue-600"
                   disabled={!replyText.trim()}
                 >
                   Enviar
